@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Navigation id="test1">
+  <InputData>
+    <Param name="test3" value="test2" />
+  </InputData>
+  <ExecutionCode>
+    <PCA-Plugin name="task" />
+  </ExecutionCode>
+  <StatisticsConfiguration>
+    <StatisticAttribute name="NavigationTime" />
+    <StatisticAttribute name="ExecutionTime" />
+    <StatisticAttribute name="HttpRoute">
+      <StatisticAttribute name="URL" />
+      <StatisticAttribute name="HttpMethod" />
+      <StatisticAttribute name="Stablished" />
+      <StatisticAttribute name="StablishmentTime" />
+      <StatisticAttribute name="TransferTime" />
+      <StatisticAttribute name="ThinkUserTime" />
+      <StatisticAttribute name="ContentSize" />
+    </StatisticAttribute>
+    <StatisticAttribute name="TimeStamp" />
+  </StatisticsConfiguration>
+</Navigation>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="javax.swing.plaf.basic.BasicBorders.SplitPaneBorder"/>
+<fullyQualifiedTypeName name="bussines.Node"/>
+<fullyQualifiedTypeName name="org.jdom2.Document"/>
+<fullyQualifiedTypeName name="org.jdom2.Element"/>
+<fullyQualifiedTypeName name="org.jdom2.output.Format"/>
+<fullyQualifiedTypeName name="org.jdom2.Attribute"/>
+<fullyQualifiedTypeName name="bussines.InitialNavigation"/>
+<fullyQualifiedTypeName name="bussines.NavigationTransition"/>
+<fullyQualifiedTypeName name="bussines.ExecutionCode"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="bussines.StatisticAttribute"/>
+<fullyQualifiedTypeName name="javax.swing.JSplitPane"/>
+<fullyQualifiedTypeName name="java.awt.Color"/>
+<fullyQualifiedTypeName name="com.mxgraph.swing.mxGraphComponent"/>
+<fullyQualifiedTypeName name="bussines.WorkloadTest"/>
+<fullyQualifiedTypeName name="javax.crypto.NullCipher"/>
+<fullyQualifiedTypeName name="com.mxgraph.model.mxCell"/>
+<fullyQualifiedTypeName name="javax.swing.JMenuItem"/>
+<fullyQualifiedTypeName name="javax.swing.SwingUtilities"/>
+</qualifiedTypeNameHistroy>

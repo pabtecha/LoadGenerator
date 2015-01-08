@@ -1,0 +1,10 @@
+1-arreglar layouts
+
+2-introducir serializers en el combo box
+
+3-windowbuild no reconoce el constructor JcomboBox<string>, reconstruir al final.
+
+4-Los text box cambian el valor con Enter y Backspace. Corregir.
+
+
+

@@ -1,0 +1,573 @@
+package bussines;
+
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
+
+
+public class WorkloadTest {
+	
+	private String id;
+	private String usersNumber;
+	private String serializerClass;
+	private List<Node> initialNavigation;
+	private List<NavigationTransition> navigationTransition;
+	private List<Node> nodes;
+	private mxGraph graph;
+	private mxGraphComponent graphComponent;
+	private int width = 50;
+	private int height = 50;
+	private Hashtable<String,Object> vertices = new Hashtable<String,Object>(30);
+	
+	//Constructor
+	public WorkloadTest(String id, String usersNumber,String serializerClass){
+
+		this.id = id;
+		this.usersNumber = usersNumber;
+		this.serializerClass = serializerClass;
+		initialNavigation = new ArrayList<Node>();;
+		navigationTransition = new ArrayList<NavigationTransition>();;
+		nodes = new ArrayList<Node>();
+		setUpGraph();
+	}
+	
+	
+	//gets
+	public String getId(){return id;}
+	public String getUsersNumber(){return usersNumber;}
+	public String getSerializerClass(){return serializerClass;}
+	public List<Node> getInitialNavigation(){return initialNavigation;}
+	public List<NavigationTransition> getNavigationTransition(){return navigationTransition;}
+	public List<Node> getNodes(){return nodes;}
+	
+	/*
+	 * Searches the node with the given id and returns it. Returns null if the node doesn't exists
+	 */
+	public Node getNodeById(String id)
+	{
+			
+		for(int i=0; i<nodes.size(); i++)
+		{
+			if(nodes.get(i).getId().equals(id)) return nodes.get(i);
+		}
+			
+		return null;
+	}
+	
+	public Node getInitialNodeById(String id)
+	{
+		for(int i=0; i<initialNavigation.size(); i++)
+		{
+			if(initialNavigation.get(i).getId().equals(id)) return initialNavigation.get(i);
+		}
+		
+		return null;
+	}
+	/*Searches a node by Id looking without considering whether it is an initial node or not. Returns null if the node doesn't exists*/
+	public Node getVertexById(String id)
+	{
+		Node n;
+		n= getNodeById(id);
+		if(n==null) n= getInitialNodeById(id);
+	
+	return n;
+	}
+	
+	public NavigationTransition getTransitionById(String id)
+	{	
+		for(int i=0; i < navigationTransition.size(); i++)
+		{
+			if(navigationTransition.get(i).toString().equals(id)) return navigationTransition.get(i);
+		}
+
+		
+		return null;
+	}
+	
+	//sets
+	public void setId(String id){this.id=id; if(id == "") System.out.println("id changed to empty");}
+	public void setUsersNumber(String num){usersNumber=num;}
+	public void setSerializerClass(String sc){serializerClass=sc;}
+	
+	
+	/*
+	 * Set up the graph configuration.
+	 */
+	public void setUpGraph()
+	{
+		graph = new mxGraph();
+		graph.setCellsBendable(false);
+		graph.setCellsCloneable(false);
+		graph.setCellsDeletable(true);
+		graph.setCellsDisconnectable(false);
+		graph.setCellsResizable(false);
+		graph.setLabelsClipped(true);
+		graph.setCellsEditable(false);
+		graph.setCellsEditable(false);
+
+		graphComponent = new mxGraphComponent(graph);
+
+	}
+	/*
+	 * If the node does not already exist, it is added to the list and returns true
+	 */
+	/*public boolean addInitialNavigation(Node ini)
+	{
+		boolean ex;
+		ex = exists(ini);
+		
+		if(!ex)
+		{
+			System.out.println("Initial node added correctly");
+			initialNavigation.add(ini);
+		}else
+		{
+			System.out.println("Initial node updated correctly");
+			
+		}
+	
+	return !ex;
+	}*/
+	
+	
+	/*
+	 * If the node does not already exist, it is added to the list and returns true
+	 */
+	
+	public boolean addNode(Node n)
+	{
+		boolean ex;
+		
+		ex = exists(n);
+		if(n.isInitial() && !ex)
+		{
+			System.out.println("Initial node added correctly");
+			initialNavigation.add(n);
+		}else if (!ex)
+		{
+			System.out.println("node added correctly");
+			nodes.add(n);
+		}
+		
+	return !ex;
+	}
+	
+	public void updateNode(Node n)
+	{
+		if(n.isInitial())
+		{
+			for(int i=0; i<initialNavigation.size();i++)
+			{
+				if(initialNavigation.get(i).getId().equals(n.getId())){
+					initialNavigation.set(i, n);
+					break;
+				}
+			
+			}
+		}else
+		{
+			for(int i=0; i<nodes.size();i++)
+			{
+				if(nodes.get(i).getId().equals(n.getId())){
+					initialNavigation.set(i, n);
+					break;
+				}	
+			}
+		}
+	}
+	
+	/*
+	 * If the transition does not already exist, it is added to the list and returns true
+	 */
+	public boolean addTransition(NavigationTransition n)
+	{
+		boolean add = false;
+		
+		if(navigationTransition == null) navigationTransition = new ArrayList<NavigationTransition>();
+		for(int i=0; i<navigationTransition.size();i++)
+		{
+	
+			if(navigationTransition.get(i).toString().equals(n.toString())){
+	
+				add = true;
+				break;
+			}
+		
+		}
+		//Add the transition to the nodes.
+		for(int i=0; i<initialNavigation.size();i++)
+		{
+			if(initialNavigation.get(i).getId().equals(n.getFrom())){initialNavigation.get(i).addDestination(n); }
+			if(initialNavigation.get(i).getId().equals(n.getTo())){initialNavigation.get(i).addPredecessor(n);}
+		}
+		for(int i=0; i < nodes.size();i++)
+		{
+			if(nodes.get(i).getId().equals(n.getFrom())) nodes.get(i).addDestination(n);
+			if(nodes.get(i).getId().equals(n.getTo())) nodes.get(i).addPredecessor(n);
+		}
+		
+		if(!add)
+		{
+			navigationTransition.add(n);
+			
+		}
+
+		
+	return !add;
+	}
+	
+
+	/*
+	 * Adds nodes to the graph from this workload and returns it.
+	 */
+	
+	public mxGraph addNodeToGraph(Node n, boolean isIni)
+	{
+		Object v;
+		graph.getModel().beginUpdate();
+		try
+		{		
+			if(isIni) v = graph.insertVertex(graph.getDefaultParent(),n.getId(),n, 250, 100, width,height,"shape=ellipse;fillColor=yellow");
+			else v = graph.insertVertex(graph.getDefaultParent(),n.getId(),n, 250, 100, width,height,"shape=ellipse");
+			vertices.put(n.getId(),v);
+		}
+		finally
+		{
+			//end transaction with endUpdate
+			graph.getModel().endUpdate();
+
+		}
+	return graph;
+	}
+	
+	public mxGraph addTransitionToGraph(NavigationTransition nav)
+	{
+		graph.getModel().beginUpdate();
+		try
+		{
+			graph.insertEdge(graph.getDefaultParent(),nav.getProbability(), 
+					nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()));
+		}
+		finally
+		{
+			//end transaction with endUpdate
+			graph.getModel().endUpdate();
+
+		}
+	return graph;
+	}
+	/*
+	 * Generates a graph from the workload specification.
+	 */
+	public mxGraphComponent generateGraph()
+	{	
+		List<Object> vertices = new ArrayList<Object>();
+		Object v;
+		int posX = 10;
+		int posY = 10;
+
+
+		graph.getModel().beginUpdate();
+		try
+		{
+			//add initialNavigations
+			for(int i=0;i<initialNavigation.size();i++)
+			{
+				v = graph.insertVertex(graph.getDefaultParent(),initialNavigation.get(i).getId(), initialNavigation.get(i), posX, posY+i*height, width,height);
+				vertices.add(v);
+			}
+			//add nodes
+			for(int i=0; i<nodes.size();i++)
+			{
+				v = graph.insertVertex(graph.getDefaultParent(),nodes.get(i).getId(), nodes.get(i), posX, posY+i*height, width,height);
+				vertices.add(v);
+			}
+			
+			//add edges
+			for(int i=0;i<navigationTransition.size();i++)
+			{
+				//Properly connect the nodes "From" and "To"
+				graph.insertEdge(graph.getDefaultParent(),navigationTransition.get(i).getFrom()+"-"+navigationTransition.get(i).getTo(), 
+						navigationTransition.get(i),vertices.get(0),vertices.get(1));
+			}
+		}
+		finally
+		{
+		//end transaction with endUpdate
+		graph.getModel().endUpdate();
+		}
+
+		return graphComponent;
+	}
+	
+	/*
+	 * If the node already exists the function updates its value and returns true, otherwise returns false
+	 */
+	private boolean exists(Node n)
+	{
+		boolean exists = false;
+		if(nodes == null) nodes = new ArrayList<Node>();
+		if(n.isInitial())
+		{
+			for(int i=0; i<initialNavigation.size();i++)
+			{
+				if(initialNavigation.get(i).getId().equals(n.getId())){
+					exists = true;
+					initialNavigation.set(i, n);
+					break;
+				}
+			
+			}
+		}else
+		{
+			for(int i=0; i<nodes.size();i++)
+			{
+				if(nodes.get(i).getId().equals(n.getId())){
+					exists = true;
+					initialNavigation.set(i, n);
+					break;
+				}	
+			}
+		}
+		return exists;
+	}
+	
+	/*
+	 * Checks if some of the parameters on this Workload are empty. Return true if there is an empty parameter.
+	 */
+
+	public boolean isEmpty()
+	{
+		if(id.equals("")) System.out.println("id is empty");
+		if(usersNumber.equals("")) System.out.println("num is empty");
+		if(serializerClass.equals("")) System.out.println("class is empty");
+		
+		if(id.equals("") || usersNumber.equals("") || serializerClass.equals("")){ System.out.println("I'm empty"); return true;}
+		
+		System.out.println("I'm not empty");
+		return false;
+	}
+	
+	/*
+	 * Checks if the graph is consistent. The probability of transitions from each node are 1 and there is a path to each node.
+	 * Returns:
+	 * 	0 if it is consistent.
+	 *  1 if the probability of the initial nodes is different to 1.
+	 *  2 if the probability of transition from a node is different to 1.
+	 *  3 if there is a node that can't be reached.
+	 *  
+	 *  
+	 *  TO DO: some probabilities are not weighted.
+	 */
+	
+	public int checkGraphConsistency()
+	{
+		int isConsistent = 0;
+		int sum = 0;
+		// Check that the sum of probabilities are equal to 1. isConsistent = 1 if otherwise
+		for(int i=0; i<initialNavigation.size();i++)
+		{
+			int sumTrans = 0;
+			sum += Integer.parseInt(initialNavigation.get(i).getProbability());
+			List<NavigationTransition> destinations = initialNavigation.get(i).getDestinations();
+			//Check that the sum of probabilities of transitions for each initial node is equal to 1; isConsistent = 2 if otherwise
+			for(int j=0; j < destinations.size();j++)
+			{
+				sumTrans += Integer.parseInt(destinations.get(j).getProbability());
+			}
+			if(sumTrans != 1) {isConsistent = 2; break;}
+			
+		}
+		if(sum != 1) isConsistent = 1;
+		
+		//Check that there is a node that has no predecessor. Returns 3 if there is one.
+		for(int i=0; i<nodes.size();i++)
+		{
+			if(nodes.get(i).getPredecessors()==null){ isConsistent = 3; break;}
+		}
+		
+		
+	return isConsistent;
+	}
+	
+	
+	/*
+	 * Create a XML file from the workload information and stores it in the given path.
+	 */
+	public void createXML(String path)
+	{
+		try {
+			Element workload = new Element("WorkloadTest");
+			workload.setAttribute("id", getId());
+			workload.setAttribute("serializerClass", "com.isoco.guernica.core.store.fs.serializer."+getSerializerClass());
+			workload.detach();
+			Document doc = new Document(workload);
+
+
+
+			
+			Element userNum = new Element("UsersNumber");
+			userNum.setText(getUsersNumber());
+			
+			doc.getRootElement().addContent(userNum);
+			
+			Element navigationGraph = new Element("NavigationGraph");
+			
+			//Add all the initial navigations.
+			Element initialNavigations = new Element("InitialNavigations");
+			
+			List<Node> initialNodes = getInitialNavigation();
+			for(int i=0; i < initialNodes.size(); i++)
+			{
+				Element iniNav = new Element("InitialNavigation");
+				iniNav.setAttribute("id", initialNodes.get(i).getId());
+				iniNav.setAttribute("probability", initialNodes.get(i).getProbability());
+				initialNavigations.addContent(iniNav);
+			}
+			
+			navigationGraph.addContent(initialNavigations);
+			
+			//Add all the navigation transitions.
+			Element navigationTransitions = new Element("NavigationTransitions");
+			
+			List<NavigationTransition> transitions = getNavigationTransition();
+			for(int i=0; i < transitions.size(); i++)
+			{
+				Element trans = new Element("NavigationTransition");
+				trans.setAttribute("from", transitions.get(i).getFrom());
+				trans.setAttribute("to", transitions.get(i).getTo());
+				trans.setAttribute("probability", transitions.get(i).getProbability());
+				navigationTransitions.addContent(trans);
+			}
+			
+			navigationGraph.addContent(navigationTransitions);
+			
+			
+			doc.getRootElement().addContent(navigationGraph);
+	 
+			
+			// new XMLOutputter().output(doc, System.out);
+			XMLOutputter xmlOutput = new XMLOutputter();
+	 
+			// display nice nice
+			xmlOutput.setFormat(Format.getPrettyFormat());
+			xmlOutput.output(doc, new FileWriter(path));
+	 
+			System.out.println("File Saved!");
+	  } catch (IOException io) {
+		System.out.println(io.getMessage());
+	  }
+	}
+	
+	/*
+	 * Read the XML file given and parses it to generate a workload.
+	 */
+	
+	public void readXML(String path)
+	{
+		  SAXBuilder builder = new SAXBuilder();
+		  File xmlFile = new File(path);
+		  
+		  int index;
+		  try {
+	 
+			
+			Document document = (Document) builder.build(xmlFile);
+			Element rootNode = document.getRootElement();
+			
+			System.out.println("ID: "+rootNode.getAttributeValue("id"));
+			System.out.println("Serializer: "+rootNode.getAttributeValue("serializerClass"));
+			System.out.println("Users Number: "+rootNode.getChildText("UsersNumber"));			
+			
+			id = rootNode.getAttributeValue("id");
+			usersNumber = rootNode.getChildText("UsersNumber");
+			index = rootNode.getAttributeValue("serializerClass").lastIndexOf(".");
+			serializerClass = rootNode.getAttributeValue("serializerClass").substring(index+1);
+			
+			Element graph = rootNode.getChild("NavigationGraph");	
+			
+			Element iniNavs = graph.getChild("InitialNavigations");
+			List<Element> iniNav = iniNavs.getChildren("InitialNavigation");
+			
+			Element navTrans = graph.getChild("NavigationTransitions");
+			List<Element> navTran = navTrans.getChildren();
+			
+			System.out.println("Number of initial navigations: "+iniNav.size());
+				
+			for (int i = 0; i < iniNav.size(); i++) {
+			   Element node = (Element) iniNav.get(i);
+			   addNode(new Node(node.getAttributeValue("id"),node.getAttributeValue("probability")));
+ 
+			}
+			
+			System.out.println("Number of navigation transitions: "+navTran.size());
+			
+			for(int i=0; i < navTran.size(); i++)
+			{
+				Element node = (Element) navTran.get(i);
+				List<Node> nodes = getNodes();
+				Node newNode = new Node(node.getAttributeValue("to"));
+				if(!nodes.contains(newNode)) addNode(newNode);
+					
+				addTransition(new NavigationTransition(node.getAttributeValue("from"),node.getAttributeValue("to"),node.getAttributeValue("probability")));
+			
+			}
+	 
+			printGraph();
+			
+		  } catch (IOException io) {
+			System.out.println(io.getMessage());
+		  } catch (JDOMException jdomex) {
+			System.out.println(jdomex.getMessage());
+		  }
+		}
+	
+	/*
+	 * Testing class, prints on console the graph.
+	 */
+	public void printGraph()
+	{
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		System.out.println("	Initial Nodes	  		   ");
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		
+		for(int i = 0; i< initialNavigation.size(); i++)
+		{
+			System.out.println(initialNavigation.get(i).toString());
+		}
+		
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		System.out.println("	 Nodes					   ");
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		
+		for(int i = 0; i< nodes.size(); i++)
+		{
+			System.out.println(nodes.get(i).toString());
+		}
+		
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		System.out.println("	Transitions				   ");
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+		
+		for(int i = 0; i< navigationTransition.size(); i++)
+		{
+			System.out.println( "From: "+navigationTransition.get(i).getFrom()+ "\t to: "+navigationTransition.get(i).getTo()+ "\t prob: "+navigationTransition.get(i).getProbability());
+		}
+		
+	}
+	
+}

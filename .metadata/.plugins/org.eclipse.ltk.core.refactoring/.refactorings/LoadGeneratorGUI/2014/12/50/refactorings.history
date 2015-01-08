@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;presentation.GuernicaGUI&apos; to &apos;WorkloadGUI&apos;&#x0A;- Original project: &apos;LoadGeneratorGUI&apos;&#x0A;- Original element: &apos;presentation.GuernicaGUI&apos;&#x0A;- Renamed element: &apos;presentation.WorkloadGUI&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;GuernicaGUI&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;presentation{GuernicaGUI.java[GuernicaGUI" matchStrategy="1" name="WorkloadGUI" qualified="false" references="true" similarDeclarations="false" stamp="1418379151572" textual="false" version="1.0"/>
+</session>

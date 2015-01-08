@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkloadTest id="pueba" serializerClass="com.isoco.guernica.core.store.fs.serializer.XMLBaseWorkloadGeneratorSerializer">
+  <UsersNumber>1</UsersNumber>
+  <NavigationGraph>
+    <InitialNavigations>
+      <InitialNavigation id="id0" probability="0.4" />
+      <InitialNavigation id="id1" probability="0.6" />
+    </InitialNavigations>
+    <NavigationTransitions>
+      <NavigationTransition from="id0" to="id3" probability="0.5" />
+      <NavigationTransition from="id0" to="id2" probability="0.25" />
+      <NavigationTransition from="id0" to="id1" probability="0.25" />
+      <NavigationTransition from="id1" to="id1" probability="0.25" />
+      <NavigationTransition from="id1" to="id2" probability="0.25" />
+      <NavigationTransition from="id1" to="id3" probability="0.5" />
+      <NavigationTransition from="id2" to="id3" probability="0.5" />
+      <NavigationTransition from="id2" to="id4" probability="0.5" />
+      <NavigationTransition from="id3" to="id4" probability="0.5" />
+      <NavigationTransition from="id3" to="id2" probability="0.5" />
+    </NavigationTransitions>
+  </NavigationGraph>
+</WorkloadTest>

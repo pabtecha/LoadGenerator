@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkloadTest id="test1" serializerClass="com.isoco.guernica.core.store.fs.serializer.XMLBaseWorkloadPlannerConfigurationSerializer">
+  <UsersNumber>200</UsersNumber>
+  <NavigationGraph>
+    <InitialNavigations>
+      <InitialNavigation id="id0" probability="0.5" />
+      <InitialNavigation id="id1" probability="0.5" />
+    </InitialNavigations>
+    <NavigationTransitions>
+      <NavigationTransition from="id0" to="id1" probability="0.5" />
+      <NavigationTransition from="id0" to="id2" probability="0.5" />
+      <NavigationTransition from="id1" to="id2" probability="0.5" />
+      <NavigationTransition from="id1" to="id3" probability="0.5" />
+    </NavigationTransitions>
+  </NavigationGraph>
+</WorkloadTest>

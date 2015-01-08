@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkloadTest id="test_searcher_vs_surfer" serializerClass="com.isoco.guernica.core.store.fs.serializer.XMLGraphNavigationWorkloadTestSerializer">
+  <UsersNumber>2</UsersNumber>
+  <NavigationGraph>
+    <InitialNavigations>
+      <InitialNavigation id="google_obama" probability="0.5"/>
+      <InitialNavigation id="google_romney" probability="0.5"/>
+    </InitialNavigations>   
+    <NavigationTransitions>
+
+        <NavigationTransition from="google_obama" to="cnn_obama" probability="0.5"/>
+        <NavigationTransition from="google_obama" to="google_romney" probability="0.25"/>
+        <NavigationTransition from="google_romney" to="cnn_romney" probability="0.5"/>
+        <NavigationTransition from="google_romney" to="google_obama" probability="0.25"/>
+        <NavigationTransition from="cnn_obama" to="google_romney" probability="0.3"/>
+        <NavigationTransition from="cnn_obama" to="cnn_romney" probability="0.3"/>
+        <NavigationTransition from="cnn_romney" to="google_obama" probability="0.3"/>
+        <NavigationTransition from="cnn_romney" to="cnn_obama" probability="0.3"/>
+                    
+    </NavigationTransitions>
+  </NavigationGraph>
+</WorkloadTest>
+
