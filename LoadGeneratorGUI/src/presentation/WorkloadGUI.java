@@ -76,6 +76,8 @@ public class WorkloadGUI extends JFrame {
 	private JLabel lblNumberOfUsers;
 	private JLabel lblSerializer;
 	private Component rigidArea;
+	private JButton btnEditNode;
+	private JButton btnEditTransition;
 	
 	
 	/**
@@ -107,69 +109,92 @@ public class WorkloadGUI extends JFrame {
 		
 		graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
 		{		
-			public void mousePressed(final MouseEvent e) {
-				// If Right Mouse Button
-				if (SwingUtilities.isRightMouseButton(e)) {
-					// Find Cell in Model Coordinates
-					final mxCell cell = (mxCell)graphComponent.getCellAt(e.getX(), e.getY());
-
-					// Create PopupMenu for the Cell
-					JPopupMenu menu =  new JPopupMenu();
-					if(cell != null && cell.isVertex())
-					{ 
-					 ActionListener actionSource = new ActionListener() {
-					      public void actionPerformed(ActionEvent e) {
-					    	 txtFrom.setText(wl.getVertexById(cell.getId()).getId());
-					      }
-					    };
-					 ActionListener actionDest = new ActionListener() {
-						  public void actionPerformed(ActionEvent e) {
-							  txtTo.setText(wl.getVertexById(cell.getId()).getId());
-						   }
-					 };
-					 ActionListener actionDelete = new ActionListener() {
-						  public void actionPerformed(ActionEvent e) {
-							  wl.deleteNode(wl.getVertexById(cell.getId()));
-						   }
-					 };
-					 ActionListener actionEdit = new ActionListener() {
-						  public void actionPerformed(ActionEvent e) {				  
-							  System.out.println("Editing cell: "+cell.getId());
-							  Node n = wl.getVertexById(cell.getId());
-							  
-							  txtNID.setText(n.getId());
-							  if(n.isInitial()){
-								  txtNProb.setText(n.getProbability());
-								  chckbxIsInitial.setSelected(true);
-							  }else
-							  {
-								  txtNProb.setText("");
-								  chckbxIsInitial.setSelected(false);
-							  }
-							  
-						   }
-					 };
-					    JMenuItem m = new JMenuItem("Edit");
-					    m.addActionListener(actionEdit);
-					    menu.add(m);
-					    m = new JMenuItem("Delete");
-					    m.addActionListener(actionDelete);
-					    menu.add(m);
-					    m = new JMenuItem("Set as source");
-					    m.addActionListener(actionSource);
-					    menu.add(m);
-					    m = new JMenuItem("Set as destination");	   
-					    m.addActionListener(actionDest);
-					    menu.add(m);
-
-					}
-					// Display PopupMenu
-					menu.show(contentPane, e.getX(), e.getY());
-
-				}
-			}
-			
 	
+				public void mousePressed(final MouseEvent e) {
+					// If Right Mouse Button
+					if (SwingUtilities.isRightMouseButton(e)) {
+						// Find Cell in Model Coordinates
+						final mxCell cell = (mxCell)graphComponent.getCellAt(e.getX(), e.getY());
+	
+						// Create PopupMenu for the Cell
+						JPopupMenu menu =  new JPopupMenu();
+						if(cell != null && cell.isVertex())
+						{ 
+						 ActionListener actionSource = new ActionListener() {
+						      public void actionPerformed(ActionEvent e) {
+						    	  System.out.println(cell.getId());
+						    	 txtFrom.setText(wl.getVertexById(cell.getId()).getId());
+						      }
+						    };
+						 ActionListener actionDest = new ActionListener() {
+							  public void actionPerformed(ActionEvent e) {
+								  txtTo.setText(wl.getVertexById(cell.getId()).getId());
+							   }
+						 };
+						 ActionListener actionDelete = new ActionListener() {
+							  public void actionPerformed(ActionEvent e) {
+								  wl.deleteNode(wl.getVertexById(cell.getId()));
+							   }
+						 };
+						 ActionListener actionEdit = new ActionListener() {
+							  public void actionPerformed(ActionEvent e) {				  
+								  System.out.println("Editing cell: "+cell.getId());
+								  Node n = wl.getVertexById(cell.getId());
+								  
+								  txtNID.setText(n.getId());
+								  if(n.isInitial()){
+									  txtNProb.setText(n.getProbability());
+									  chckbxIsInitial.setSelected(true);
+								  }else
+								  {
+									  txtNProb.setText("");
+									  chckbxIsInitial.setSelected(false);
+								  }
+								  
+							   }
+						 };
+						    JMenuItem m = new JMenuItem("Edit");
+						    m.addActionListener(actionEdit);
+						    menu.add(m);
+						    m = new JMenuItem("Delete");
+						    m.addActionListener(actionDelete);
+						    menu.add(m);
+						    m = new JMenuItem("Set as source");
+						    m.addActionListener(actionSource);
+						    menu.add(m);
+						    m = new JMenuItem("Set as destination");	   
+						    m.addActionListener(actionDest);
+						    menu.add(m);
+	
+						}
+						
+						if(cell != null && cell.isEdge())
+						{
+							ActionListener actionEdit = new ActionListener() {
+							      public void actionPerformed(ActionEvent e) {
+							    	 System.out.println("Editing transition");
+							      }
+							 };
+							 ActionListener actionDelete = new ActionListener() {
+								  public void actionPerformed(ActionEvent e) {
+									 System.out.println("deleting transition");
+								   }
+							 };
+							 JMenuItem m = new JMenuItem("Set probability");
+							 m.addActionListener(actionEdit);
+							 menu.add(m);
+							 m = new JMenuItem("Delete");
+							 m.addActionListener(actionDelete);
+							 menu.add(m);
+						}
+						// Display PopupMenu
+						menu.show(contentPane, e.getX(), e.getY());
+						
+						
+	
+					}
+	
+				}		
 		});
 	
 	
@@ -400,6 +425,21 @@ public class WorkloadGUI extends JFrame {
 			}
 		});
 		
+		btnEditNode = new JButton("Edit");
+		btnEditNode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(chckbxIsInitial.isSelected())
+					wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()));
+				else
+					wl.updateNode(new Node(txtNID.getText()));
+			}
+		});
+		GridBagConstraints gbc_btnEditNode = new GridBagConstraints();
+		gbc_btnEditNode.insets = new Insets(0, 0, 5, 5);
+		gbc_btnEditNode.gridx = 1;
+		gbc_btnEditNode.gridy = 4;
+		panelNode.add(btnEditNode, gbc_btnEditNode);
+		
 		GridBagConstraints gbc_btnAddNode = new GridBagConstraints();
 		gbc_btnAddNode.insets = new Insets(0, 0, 5, 5);
 		gbc_btnAddNode.gridx = 2;
@@ -486,6 +526,13 @@ public class WorkloadGUI extends JFrame {
 				addTransition();
 			}
 		});
+		
+		btnEditTransition = new JButton("Edit");
+		GridBagConstraints gbc_btnEditTransition = new GridBagConstraints();
+		gbc_btnEditTransition.insets = new Insets(0, 0, 5, 5);
+		gbc_btnEditTransition.gridx = 1;
+		gbc_btnEditTransition.gridy = 4;
+		panelTransition.add(btnEditTransition, gbc_btnEditTransition);
 		GridBagConstraints gbc_btnAddTransition = new GridBagConstraints();
 		gbc_btnAddTransition.anchor = GridBagConstraints.NORTH;
 		gbc_btnAddTransition.insets = new Insets(0, 0, 5, 5);
@@ -524,7 +571,7 @@ public class WorkloadGUI extends JFrame {
 			else
 			{	n = new Node(txtNID.getText(), txtNProb.getText());
 				added = wl.addNode(n);
-				if(added) graphComponent.setGraph( wl.addNodeToGraph(new Node(txtNID.getText(), txtNProb.getText()), true));
+				if(added) graphComponent.setGraph( wl.addNodeToGraph(n, true));
 			}
 		}
 		else 
@@ -536,20 +583,15 @@ public class WorkloadGUI extends JFrame {
 			}
 			else
 			{	n = new Node(txtNID.getText());
+	
 				added =	wl.addNode(n);
-				if(added) graphComponent.setGraph(wl.addNodeToGraph(new Node(txtNID.getText(), txtNProb.getText()), false));
+				if(added) graphComponent.setGraph(wl.addNodeToGraph(n, false));
 			}
 		}
 		splitPane.add(graphComponent,JSplitPane.TOP);
 		if(!added)
 		{ 
-			int dialogButton = JOptionPane.YES_NO_OPTION;
-		
-			JOptionPane.showConfirmDialog (null, "This node already exists. Would You Like to update it?","Warning",dialogButton);
-
-			if(dialogButton == JOptionPane.YES_OPTION){
-				wl.updateNode(n);
-			}
+			JOptionPane.showMessageDialog(this,"This node already exists","ERROR",JOptionPane.ERROR_MESSAGE);
 	
 		}	
 	}
@@ -558,13 +600,18 @@ public class WorkloadGUI extends JFrame {
 	public void addTransition()
 	{
 		boolean added;
-		
-		added = wl.addTransition(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText()));
-		if(added) graphComponent.setGraph( wl.addTransitionToGraph(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText())));
-		
-		if(!added)
-		{ 
-			JOptionPane.showMessageDialog(this,"This transition already exists","ERROR",JOptionPane.ERROR_MESSAGE);
+		if(txtFrom.getText().equals("") || txtTo.getText().equals("") || txtTProb.getText().equals(""))
+			JOptionPane.showMessageDialog(this,"The transition has empty parameters","ERROR",JOptionPane.ERROR_MESSAGE);
+		else
+		{
+			
+			added = wl.addTransition(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText()));
+			if(added) graphComponent.setGraph( wl.addTransitionToGraph(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText())));
+			
+			if(!added)
+			{ 
+				JOptionPane.showMessageDialog(this,"This transition already exists","ERROR",JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 	

@@ -159,6 +159,9 @@ public class WorkloadTest {
 		
 	return !ex;
 	}
+	/*
+	 * Updates a node, setting its new values on both the workload and the graph representation.
+	 */
 	
 	public void updateNode(Node n)
 	{
@@ -167,7 +170,9 @@ public class WorkloadTest {
 			for(int i=0; i<initialNavigation.size();i++)
 			{
 				if(initialNavigation.get(i).getId().equals(n.getId())){
-					initialNavigation.set(i, n);
+					initialNavigation.get(i).setId(n.getId());
+					initialNavigation.get(i).setInitial(true);
+					initialNavigation.get(i).setProbability(n.getProbability());
 					break;
 				}
 			
@@ -177,11 +182,13 @@ public class WorkloadTest {
 			for(int i=0; i<nodes.size();i++)
 			{
 				if(nodes.get(i).getId().equals(n.getId())){
-					initialNavigation.set(i, n);
+					nodes.get(i).setId(n.getId());
 					break;
 				}	
 			}
 		}
+		
+		
 	}
 	/*
 	 * Deletes the node from the graph and all the transitions going from the node.
@@ -193,13 +200,15 @@ public class WorkloadTest {
 		if(n.isInitial())
 		{
 			initialNavigation.remove(n);			
-			
 			for(int i=0; i < n.getDestinations().size(); i++)
 			{
 				for(int j=0; j < nodes.size(); j++)
 				{
 					if(n.getDestinations().get(i).getTo().equals(nodes.get(j).getId()))
-							nodes.get(j).removePredecessor(n);
+					{
+						nodes.get(j).removePredecessor(n);
+					}
+						
 				}
 				
 			}
@@ -211,20 +220,29 @@ public class WorkloadTest {
 				for(int j=0; j < n.getDestinations().size(); j++)
 				{
 					if(n.getDestinations().get(j).getTo().equals(nodes.get(i).getId()))
-						nodes.get(i).removePredecessor(n);
+					{
+						nodes.get(i).removeDestination(n);
+						System.out.println("removing "+n.getId()+" as a destination of "+nodes.get(i));
+					}
+
 				}
 				
 				for(int k=0; k < n.getPredecessors().size(); k++)
 				{
 					if(n.getPredecessors().get(k).getFrom().equals(nodes.get(i).getId()))
+					{
 						nodes.get(i).removePredecessor(n);
+						System.out.println("removing "+n.getId()+" as a predecessor of "+nodes.get(i));
+					}
+						
 				}
 			}
 			
-			
+		}
 			graph.getModel().beginUpdate();
             try {
             	Object vertex = vertices.get(n.getId());
+            	System.out.println("removing vertex:" +vertex.toString());
                 Object[] edges = graph.getEdges(vertex);
               
                 for( Object edge: edges) {
@@ -234,7 +252,7 @@ public class WorkloadTest {
             } finally {
                 graph.getModel().endUpdate();
             }
-        }
+        
 			
 			
 	}
@@ -292,7 +310,7 @@ public class WorkloadTest {
 		Object v;
 		graph.getModel().beginUpdate();
 		try
-		{		
+		{	
 			if(isIni) v = graph.insertVertex(graph.getDefaultParent(),n.getId(),n, 250, 100, width,height,"shape=ellipse;fillColor=yellow");
 			else v = graph.insertVertex(graph.getDefaultParent(),n.getId(),n, 250, 100, width,height,"shape=ellipse");
 			vertices.put(n.getId(),v);

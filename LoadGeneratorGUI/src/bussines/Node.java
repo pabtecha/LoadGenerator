@@ -34,6 +34,8 @@ public class Node {
 	public String getProbability(){return probability;}
 	
 	public void setId(String id){this.id = id;}
+	public void setProbability(String prob){probability=prob;}
+	public void setInitial(boolean b){isInitial = b;}
 	public void addPredecessor(NavigationTransition n)
 	{
 		if(from == null) from = new ArrayList<NavigationTransition>();
