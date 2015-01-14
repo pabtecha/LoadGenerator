@@ -133,6 +133,7 @@ public class WorkloadGUI extends JFrame {
 						 };
 						 ActionListener actionDelete = new ActionListener() {
 							  public void actionPerformed(ActionEvent e) {
+								  System.out.println("deleting node: "+cell.getId());
 								  wl.deleteNode(wl.getVertexById(cell.getId()));
 							   }
 						 };
@@ -178,6 +179,7 @@ public class WorkloadGUI extends JFrame {
 							 ActionListener actionDelete = new ActionListener() {
 								  public void actionPerformed(ActionEvent e) {
 									 System.out.println("deleting transition");
+
 								   }
 							 };
 							 JMenuItem m = new JMenuItem("Set probability");
@@ -428,6 +430,7 @@ public class WorkloadGUI extends JFrame {
 		btnEditNode = new JButton("Edit");
 		btnEditNode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				if(chckbxIsInitial.isSelected())
 					wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()));
 				else

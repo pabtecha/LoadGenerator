@@ -15,6 +15,7 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
@@ -177,6 +178,7 @@ public class WorkloadTest {
 				}
 			
 			}
+			
 		}else
 		{
 			for(int i=0; i<nodes.size();i++)
@@ -187,21 +189,49 @@ public class WorkloadTest {
 				}	
 			}
 		}
+	
 		
-		
+		Object[] cells = graph.getChildCells(graph.getDefaultParent());
+		for(Object cell : cells)
+		{
+			mxCell c = (mxCell) cell;
+			System.out.println("cell:"+c.getId());
+			
+			if(c.getId().equals(n.getId()))
+			{
+				System.out.println("Editing cell: "+c.getId());
+				
+				graph.cellLabelChanged(cell, n.getId(), false);
+
+			}
+
+		}
+
 	}
 	/*
-	 * Deletes the node from the graph and all the transitions going from the node.
-	 */
-	
+	 * Deletes the node from the graph and all the transitions going from and to the node.
+	 */	
 	public void deleteNode(Node n)
 	{
-		
+		System.out.println("Received node "+n.getId()+" for deletion");
+		if(n.getProbability()!=null) System.out.println(n.getProbability());
+		if(n.getDestinations()!=null)	System.out.println(n.getDestinations().toString());
+		if(n.getPredecessors()!=null)System.out.println(n.getPredecessors().toString());
+
 		if(n.isInitial())
 		{
-			initialNavigation.remove(n);			
+						
 			for(int i=0; i < n.getDestinations().size(); i++)
 			{
+				
+				for(int j=0; j < initialNavigation.size(); j++)
+				{
+					if(n.getDestinations().get(i).getTo().equals(initialNavigation.get(j).getId()))
+					{
+						nodes.get(j).removePredecessor(n);
+					}
+						
+				}
 				for(int j=0; j < nodes.size(); j++)
 				{
 					if(n.getDestinations().get(i).getTo().equals(nodes.get(j).getId()))
@@ -210,18 +240,22 @@ public class WorkloadTest {
 					}
 						
 				}
-				
+								
 			}
+			initialNavigation.remove(n);
 		}else
 		{
 			nodes.remove(n);
+			System.out.println("node removed");
 			for(int i=0; i < nodes.size(); i++)
 			{
+				System.out.println("nodes size:"+nodes.size());
 				for(int j=0; j < n.getDestinations().size(); j++)
 				{
+					System.out.println(n.getId()+" destinations = "+n.getDestinations().size());
 					if(n.getDestinations().get(j).getTo().equals(nodes.get(i).getId()))
 					{
-						nodes.get(i).removeDestination(n);
+						nodes.get(i).removePredecessor(n);
 						System.out.println("removing "+n.getId()+" as a destination of "+nodes.get(i));
 					}
 
@@ -229,9 +263,10 @@ public class WorkloadTest {
 				
 				for(int k=0; k < n.getPredecessors().size(); k++)
 				{
+					System.out.println(n.getId()+" has"+n.getPredecessors().size() +" predecessors");
 					if(n.getPredecessors().get(k).getFrom().equals(nodes.get(i).getId()))
 					{
-						nodes.get(i).removePredecessor(n);
+						nodes.get(i).removeDestination(n);
 						System.out.println("removing "+n.getId()+" as a predecessor of "+nodes.get(i));
 					}
 						
@@ -241,20 +276,19 @@ public class WorkloadTest {
 		}
 			graph.getModel().beginUpdate();
             try {
-            	Object vertex = vertices.get(n.getId());
+            	Object vertex = vertices.get(n.getId());	
             	System.out.println("removing vertex:" +vertex.toString());
                 Object[] edges = graph.getEdges(vertex);
-              
+                graph.getModel().remove(vertex);
                 for( Object edge: edges) {
                 	graph.getModel().remove(edge);
                 }
-                graph.getModel().remove(vertex);
             } finally {
                 graph.getModel().endUpdate();
             }
-        
-			
-			
+            graphComponent.setGraph(graph);
+			//delete transitions
+			removeTransitions(n);
 	}
 	
 	
@@ -263,7 +297,7 @@ public class WorkloadTest {
 	 */
 	public boolean addTransition(NavigationTransition n)
 	{
-		boolean add = false;
+		boolean add = true;
 		
 		if(navigationTransition == null) navigationTransition = new ArrayList<NavigationTransition>();
 		for(int i=0; i<navigationTransition.size();i++)
@@ -273,7 +307,7 @@ public class WorkloadTest {
 				navigationTransition.get(i).getTo().equals(n.getTo()) &&
 				navigationTransition.get(i).getProbability().equals(n.getProbability())){
 
-				add = true;
+				add = false;
 				break;
 			}
 		
@@ -290,16 +324,27 @@ public class WorkloadTest {
 			if(nodes.get(i).getId().equals(n.getTo())) nodes.get(i).addPredecessor(n);
 		}
 		
-		if(!add)
+		if(add)
 		{
 			navigationTransition.add(n);
 			
 		}
 
 		
-	return !add;
+	return add;
 	}
-	
+	/*
+	 * Delete transitions that contains a specific node
+	 */
+	public void removeTransitions(Node n)
+	{
+		for(int i = 0; i < navigationTransition.size(); i++)
+		{
+			if(navigationTransition.get(i).getFrom().equals(n.getId()) ||
+				navigationTransition.get(i).getTo().equals(n.getId()))
+				navigationTransition.remove(i);
+		}
+	}
 
 	/*
 	 * Adds nodes to the graph from this workload and returns it.
@@ -321,6 +366,7 @@ public class WorkloadTest {
 			graph.getModel().endUpdate();
 
 		}
+		graphComponent.setGraph(graph);
 	return graph;
 	}
 	
@@ -329,13 +375,15 @@ public class WorkloadTest {
 		graph.getModel().beginUpdate();
 		try
 		{
-			graph.insertEdge(graph.getDefaultParent(),nav.getProbability(), 
+			graph.insertEdge(vertices.get(nav.getFrom()),nav.getProbability(), 
 					nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()));
 		}
 		finally
 		{
 			//end transaction with endUpdate
 			graph.getModel().endUpdate();
+			
+			graphComponent.setGraph(graph);
 
 		}
 	return graph;
@@ -380,7 +428,7 @@ public class WorkloadTest {
 		//end transaction with endUpdate
 		graph.getModel().endUpdate();
 		}
-
+		graphComponent.setGraph(graph);
 		return graphComponent;
 	}
 	

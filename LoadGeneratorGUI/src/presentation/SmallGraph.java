@@ -110,11 +110,20 @@ public class SmallGraph extends JFrame {
 					 ActionListener actionSource = new ActionListener() {
 					      public void actionPerformed(ActionEvent e) {
 					    	  System.out.println(cell.getId()+" is source");
+					    	  
 					      }
 					    };
 					 ActionListener actionDest = new ActionListener() {
 						  public void actionPerformed(ActionEvent e) {
 							  System.out.println(cell.getId()+" is destination");
+						   }
+					 };
+					 ActionListener actionDesc = new ActionListener() {
+						  public void actionPerformed(ActionEvent e) {
+							  Node n = (Node)cell.getValue();
+							  System.out.println(n.getProbability());
+							  cell.setId("id1234");
+							  System.out.println("There are: "+graph.getSelectionCount()+" cells");
 						   }
 					 };
 					 ActionListener actionEdit = new ActionListener() {
@@ -129,6 +138,9 @@ public class SmallGraph extends JFrame {
 					 };
 					    JMenuItem m = new JMenuItem("Edit");
 					    m.addActionListener(actionEdit);
+					    menu.add(m);
+					    m = new JMenuItem("Describe node");
+					    m.addActionListener(actionDesc);
 					    menu.add(m);
 					    m = new JMenuItem("Set as source");
 					    m.addActionListener(actionSource);

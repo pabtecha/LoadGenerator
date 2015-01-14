@@ -14,6 +14,8 @@ public class Node {
 		
 		this.id = id;
 		isInitial=false;
+		from = new ArrayList<NavigationTransition>();
+		to = new ArrayList<NavigationTransition>();
 		
 	}
 	
@@ -22,6 +24,8 @@ public class Node {
 		this.id = id;
 		isInitial=true;
 		this.probability = probability;
+		from = new ArrayList<NavigationTransition>();
+		to = new ArrayList<NavigationTransition>();
 		
 	}
 	
@@ -38,14 +42,13 @@ public class Node {
 	public void setInitial(boolean b){isInitial = b;}
 	public void addPredecessor(NavigationTransition n)
 	{
-		if(from == null) from = new ArrayList<NavigationTransition>();
 		from.add(n);
 	//	System.out.println(n.toString());
 	}
 	
 	public void addDestination(NavigationTransition n)
 	{
-		if(to == null) to = new ArrayList<NavigationTransition>();
+	
 		to.add(n);
 	//	System.out.println(n.toString());
 	}
@@ -66,7 +69,11 @@ public class Node {
 	{
 		for(int i=0; i < to.size(); i++)
 		{
-			if(from.get(i).getTo().equals(n.getId())){ from.remove(i);}
+			if(to.get(i).getTo().equals(n.getId()))
+			{ 
+				System.out.println("removing "+n.getId()+"from "+id+"'s destination list");
+				to.remove(i);
+			}
 		}
 	}
 	public String toString(){return id;}
