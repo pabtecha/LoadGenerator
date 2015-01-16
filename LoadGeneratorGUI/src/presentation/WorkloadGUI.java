@@ -171,15 +171,23 @@ public class WorkloadGUI extends JFrame {
 						
 						if(cell != null && cell.isEdge())
 						{
+							//the split result is nav[0]=from; nav[1]=to; nav[2]=prob;
+							final String[] nav = cell.getId().split("-");
 							ActionListener actionEdit = new ActionListener() {
 							      public void actionPerformed(ActionEvent e) {
 							    	 System.out.println("Editing transition");
+							    	 txtFrom.setText(nav[0]);
+							    	 txtTo.setText(nav[1]);
+							    	 txtTProb.setText(nav[2]);
 							      }
 							 };
 							 ActionListener actionDelete = new ActionListener() {
 								  public void actionPerformed(ActionEvent e) {
 									 System.out.println("deleting transition");
-
+									 System.out.println(cell.getId());
+									
+									 if(wl.getNavigation(nav[0],nav[1], nav[2]) != null)
+										 wl.deleteTransition(wl.getNavigation(nav[0],nav[1], nav[2]));
 								   }
 							 };
 							 JMenuItem m = new JMenuItem("Set probability");
@@ -430,11 +438,11 @@ public class WorkloadGUI extends JFrame {
 		btnEditNode = new JButton("Edit");
 		btnEditNode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+			Object cell =	graphComponent.getGraph().getSelectionCell();
 				if(chckbxIsInitial.isSelected())
-					wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()));
+					wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()), cell);
 				else
-					wl.updateNode(new Node(txtNID.getText()));
+					wl.updateNode(new Node(txtNID.getText()),cell);
 			}
 		});
 		GridBagConstraints gbc_btnEditNode = new GridBagConstraints();
@@ -531,6 +539,11 @@ public class WorkloadGUI extends JFrame {
 		});
 		
 		btnEditTransition = new JButton("Edit");
+		btnEditTransition.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				wl.updateEdge(txtFrom.getText(),txtTo.getText(),txtTProb.getText());
+			}
+		});
 		GridBagConstraints gbc_btnEditTransition = new GridBagConstraints();
 		gbc_btnEditTransition.insets = new Insets(0, 0, 5, 5);
 		gbc_btnEditTransition.gridx = 1;

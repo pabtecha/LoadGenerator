@@ -32,8 +32,8 @@ public class WorkloadTest {
 	private mxGraphComponent graphComponent;
 	private int width = 50;
 	private int height = 50;
-	private Hashtable<String,Object> vertices = new Hashtable<String,Object>(30);
-	
+	private Hashtable<String,Object> vertices;
+	private Hashtable<String,Object> edges;
 	//Constructor
 	public WorkloadTest(String id, String usersNumber,String serializerClass){
 
@@ -43,6 +43,8 @@ public class WorkloadTest {
 		initialNavigation = new ArrayList<Node>();;
 		navigationTransition = new ArrayList<NavigationTransition>();;
 		nodes = new ArrayList<Node>();
+		vertices = new Hashtable<String,Object>(30);
+		edges = new Hashtable<String,Object>(30);
 		setUpGraph();
 	}
 	
@@ -113,27 +115,6 @@ public class WorkloadTest {
 		graphComponent = new mxGraphComponent(graph);
 
 	}
-	/*
-	 * If the node does not already exist, it is added to the list and returns true
-	 */
-	/*public boolean addInitialNavigation(Node ini)
-	{
-		boolean ex;
-		ex = exists(ini);
-		
-		if(!ex)
-		{
-			System.out.println("Initial node added correctly");
-			initialNavigation.add(ini);
-		}else
-		{
-			System.out.println("Initial node updated correctly");
-			
-		}
-	
-	return !ex;
-	}*/
-	
 	
 	/*
 	 * If the node does not already exist, it is added to the list and returns true
@@ -164,7 +145,7 @@ public class WorkloadTest {
 	 * Updates a node, setting its new values on both the workload and the graph representation.
 	 */
 	
-	public void updateNode(Node n)
+	public void updateNode(Node n, Object cell)
 	{
 		if(n.isInitial())
 		{
@@ -191,9 +172,6 @@ public class WorkloadTest {
 		}
 	
 		
-		Object[] cells = graph.getChildCells(graph.getDefaultParent());
-		for(Object cell : cells)
-		{
 			mxCell c = (mxCell) cell;
 			System.out.println("cell:"+c.getId());
 			
@@ -202,10 +180,14 @@ public class WorkloadTest {
 				System.out.println("Editing cell: "+c.getId());
 				
 				graph.cellLabelChanged(cell, n.getId(), false);
-
+				c.setId(n.getId());
+				if(n.isInitial())
+					c.setStyle("shape=ellipse;fillColor=yellow");
+				else
+					c.setStyle("shape=ellipse");
 			}
 
-		}
+		
 
 	}
 	/*
@@ -228,7 +210,7 @@ public class WorkloadTest {
 				{
 					if(n.getDestinations().get(i).getTo().equals(initialNavigation.get(j).getId()))
 					{
-						nodes.get(j).removePredecessor(n);
+						nodes.get(j).removePredecessor(n.getId());
 					}
 						
 				}
@@ -236,7 +218,7 @@ public class WorkloadTest {
 				{
 					if(n.getDestinations().get(i).getTo().equals(nodes.get(j).getId()))
 					{
-						nodes.get(j).removePredecessor(n);
+						nodes.get(j).removePredecessor(n.getId());
 					}
 						
 				}
@@ -255,7 +237,7 @@ public class WorkloadTest {
 					System.out.println(n.getId()+" destinations = "+n.getDestinations().size());
 					if(n.getDestinations().get(j).getTo().equals(nodes.get(i).getId()))
 					{
-						nodes.get(i).removePredecessor(n);
+						nodes.get(i).removePredecessor(n.getId());
 						System.out.println("removing "+n.getId()+" as a destination of "+nodes.get(i));
 					}
 
@@ -266,7 +248,7 @@ public class WorkloadTest {
 					System.out.println(n.getId()+" has"+n.getPredecessors().size() +" predecessors");
 					if(n.getPredecessors().get(k).getFrom().equals(nodes.get(i).getId()))
 					{
-						nodes.get(i).removeDestination(n);
+						nodes.get(i).removeDestination(n.getId());
 						System.out.println("removing "+n.getId()+" as a predecessor of "+nodes.get(i));
 					}
 						
@@ -334,6 +316,104 @@ public class WorkloadTest {
 	return add;
 	}
 	/*
+	 * Searches for a specific transition and returns it. If the transition doesn't exists returns null
+	 */
+	public NavigationTransition getNavigation(String from, String to, String prob)
+	{
+		NavigationTransition nav = null;
+		for(int i = 0; i < navigationTransition.size(); i++)
+		{
+			if(navigationTransition.get(i).getFrom().equals(from) &&
+				navigationTransition.get(i).getTo().equals(to) &&
+				navigationTransition.get(i).getProbability().equals(prob))
+			{
+				nav = navigationTransition.get(i);
+				break;
+			}	
+		}
+	return nav;
+	}
+	
+	/*
+	 * Updates the probability to a specific transition and updates the edge label
+	 */
+	public void updateEdge(String from, String to, String prob)
+	{
+
+		for(int i = 0; i < navigationTransition.size(); i++)
+		{
+			if(navigationTransition.get(i).getFrom().equals(from) &&
+				navigationTransition.get(i).getTo().equals(to))
+			{
+				 navigationTransition.get(i).setProbability(prob);;
+				break;
+			}	
+		}
+		
+		graph.getModel().beginUpdate();
+        try {
+
+        	Object edge = edges.get(from+"-"+to);
+        	if(edge != null)
+        	{
+        		graph.cellLabelChanged(edge, prob, false);
+
+        	}
+
+        	
+        } finally {
+            graph.getModel().endUpdate();
+        }
+        graphComponent.setGraph(graph);
+		
+	}
+	
+	/*
+	 * Deletes a transition from the workload and the graph.
+	 */
+	
+	public void deleteTransition(NavigationTransition nav)
+	{
+		for(int i = 0; i < navigationTransition.size(); i++)
+		{
+			if(navigationTransition.get(i).getFrom().equals(nav.getFrom()) &&
+				navigationTransition.get(i).getTo().equals(nav.getTo()))
+				navigationTransition.remove(i);
+		}
+		for(int i=0; i<initialNavigation.size();i++)
+		{
+			if(initialNavigation.get(i).getId().equals(nav.getFrom())){initialNavigation.get(i).removeDestination(nav.getFrom()); }
+			if(initialNavigation.get(i).getId().equals(nav.getTo())){initialNavigation.get(i).removePredecessor(nav.getTo());}
+		}
+		for(int i=0; i < nodes.size();i++)
+		{
+			if(nodes.get(i).getId().equals(nav.getFrom())) nodes.get(i).removeDestination(nav.getFrom());
+			if(nodes.get(i).getId().equals(nav.getTo())) nodes.get(i).removePredecessor(nav.getTo());
+		}
+		
+		graph.getModel().beginUpdate();
+        try {
+        	Object from = vertices.get(nav.getFrom());
+        	Object to = vertices.get(nav.getTo());
+      
+            Object[] edges = graph.getEdgesBetween(from, to);
+
+            for( Object edge: edges) {
+            	mxCell ed = (mxCell) edge;
+            	if(ed.getId().equals(nav.toString()))
+            		graph.getModel().remove(edge);
+            }
+        } finally {
+            graph.getModel().endUpdate();
+        }
+        graphComponent.setGraph(graph);
+		
+	}
+
+		
+
+	
+	/*
 	 * Delete transitions that contains a specific node
 	 */
 	public void removeTransitions(Node n)
@@ -375,8 +455,11 @@ public class WorkloadTest {
 		graph.getModel().beginUpdate();
 		try
 		{
-			graph.insertEdge(vertices.get(nav.getFrom()),nav.getProbability(), 
+			Object ed = graph.insertEdge(vertices.get(nav.getFrom()),nav.getFrom()+"-"+nav.getTo(), 
 					nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()));
+			graph.cellLabelChanged(ed, nav.getProbability(), false);
+			edges.put(nav.getFrom()+"-"+nav.getTo(), ed);
+
 		}
 		finally
 		{

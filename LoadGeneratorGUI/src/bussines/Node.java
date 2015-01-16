@@ -55,23 +55,23 @@ public class Node {
 	/*
 	 * Removes the references coming from a given node. 
 	 */
-	public void removePredecessor(Node n)
+	public void removePredecessor(String nid)
 	{
 		for(int i=0; i < from.size(); i++)
 		{
-			if(from.get(i).getFrom().equals(n.getId())){ from.remove(i);}
+			if(from.get(i).getFrom().equals(nid)){ from.remove(i);}
 		}
 	}
 	/*
 	 * Removes all the transitions going to the given node-
 	 */
-	public void removeDestination(Node n)
+	public void removeDestination(String nid)
 	{
 		for(int i=0; i < to.size(); i++)
 		{
-			if(to.get(i).getTo().equals(n.getId()))
+			if(to.get(i).getTo().equals(nid))
 			{ 
-				System.out.println("removing "+n.getId()+"from "+id+"'s destination list");
+				System.out.println("removing "+nid+"from "+id+"'s destination list");
 				to.remove(i);
 			}
 		}
