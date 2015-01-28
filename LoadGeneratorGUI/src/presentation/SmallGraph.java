@@ -123,6 +123,7 @@ public class SmallGraph extends JFrame {
 							  Node n = (Node)cell.getValue();
 							  System.out.println(n.getProbability());
 							  cell.setId("id1234");
+							  graph.cellLabelChanged(cell, "id1234", false);
 							  System.out.println("There are: "+graph.getSelectionCount()+" cells");
 						   }
 					 };
@@ -133,6 +134,8 @@ public class SmallGraph extends JFrame {
 							  System.out.println("Node id: " +n.getId());
 							  System.out.println("is initial: " +n.isInitial());
 							  if(n.isInitial()) System.out.println(n.getProbability());
+							  cell.setId("test");
+							  graph.cellLabelChanged(cell, "test", false);
 							  
 						   }
 					 };

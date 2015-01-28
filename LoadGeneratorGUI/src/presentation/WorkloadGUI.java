@@ -133,23 +133,22 @@ public class WorkloadGUI extends JFrame {
 						 };
 						 ActionListener actionDelete = new ActionListener() {
 							  public void actionPerformed(ActionEvent e) {
-								  System.out.println("deleting node: "+cell.getId());
 								  wl.deleteNode(wl.getVertexById(cell.getId()));
 							   }
 						 };
 						 ActionListener actionEdit = new ActionListener() {
 							  public void actionPerformed(ActionEvent e) {				  
-								  System.out.println("Editing cell: "+cell.getId());
-								  Node n = wl.getVertexById(cell.getId());
-								  
+								  Node n = wl.getVertexById(cell.getId());							  
 								  txtNID.setText(n.getId());
 								  if(n.isInitial()){
 									  txtNProb.setText(n.getProbability());
 									  chckbxIsInitial.setSelected(true);
+									  isInitial = true;
 								  }else
 								  {
 									  txtNProb.setText("");
 									  chckbxIsInitial.setSelected(false);
+									  isInitial = false;
 								  }
 								  
 							   }
@@ -179,6 +178,7 @@ public class WorkloadGUI extends JFrame {
 							    	 txtFrom.setText(nav[0]);
 							    	 txtTo.setText(nav[1]);
 							    	 txtTProb.setText(nav[2]);
+
 							      }
 							 };
 							 ActionListener actionDelete = new ActionListener() {
@@ -186,8 +186,8 @@ public class WorkloadGUI extends JFrame {
 									 System.out.println("deleting transition");
 									 System.out.println(cell.getId());
 									
-									 if(wl.getNavigation(nav[0],nav[1], nav[2]) != null)
-										 wl.deleteTransition(wl.getNavigation(nav[0],nav[1], nav[2]));
+									 if(wl.getNavigation(cell.getId()) != null)
+										 wl.deleteTransition(wl.getNavigation(cell.getId()));
 								   }
 							 };
 							 JMenuItem m = new JMenuItem("Set probability");
@@ -541,7 +541,9 @@ public class WorkloadGUI extends JFrame {
 		btnEditTransition = new JButton("Edit");
 		btnEditTransition.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				wl.updateEdge(txtFrom.getText(),txtTo.getText(),txtTProb.getText());
+				mxCell edge = (mxCell) graphComponent.getGraph().getSelectionCell();
+
+				wl.updateEdge(txtFrom.getText(),txtTo.getText(),txtTProb.getText(), edge);
 			}
 		});
 		GridBagConstraints gbc_btnEditTransition = new GridBagConstraints();

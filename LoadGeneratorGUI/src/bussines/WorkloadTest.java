@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -145,50 +146,125 @@ public class WorkloadTest {
 	 * Updates a node, setting its new values on both the workload and the graph representation.
 	 */
 	
-	public void updateNode(Node n, Object cell)
+	public boolean updateNode(Node n, Object cell)
 	{
-		if(n.isInitial())
+		mxCell c = (mxCell) cell;
+		Node old = getVertexById(c.getId());
+		boolean wasInitial = false;
+		int pos = -1;
+		boolean exists = false;
+		boolean sameNode = false;
+		
+		if(n.getId().equals(old.getId()))
+			sameNode = true;
+		//search the position where the old node was, and check if the new id is already taken
+		for(int i=0; i < initialNavigation.size(); i++)
 		{
-			for(int i=0; i<initialNavigation.size();i++)
+			if(initialNavigation.get(i).getId().equals(old.getId()))
 			{
-				if(initialNavigation.get(i).getId().equals(n.getId())){
-					initialNavigation.get(i).setId(n.getId());
-					initialNavigation.get(i).setInitial(true);
-					initialNavigation.get(i).setProbability(n.getProbability());
-					break;
-				}
-			
+				pos=i;
+				wasInitial = true;
+			}
+			if(initialNavigation.get(i).getId().equals(n.getId()))
+				exists = true;
+		}
+		
+		for(int i =0; i < nodes.size(); i++)
+		{
+			if(nodes.get(i).getId().equals(old.getId()))
+				pos = i;
+			if(nodes.get(i).getId().equals(n.getId()))
+				exists = true;			
+		}
+		
+		if(exists && !sameNode) //node already exists
+			return false;
+		
+		
+		//update predecessor and destination lists
+		if(!sameNode)
+		{
+			for(int i=0; i< old.getDestinations().size(); i++)
+			{
+				Node dest = getVertexById(old.getDestinations().get(i).getTo());
+				dest.editPredecessor(old.getId(), n.getId());					
 			}
 			
-		}else
-		{
-			for(int i=0; i<nodes.size();i++)
+			for(int i=0; i<old.getPredecessors().size(); i++)
 			{
-				if(nodes.get(i).getId().equals(n.getId())){
-					nodes.get(i).setId(n.getId());
-					break;
-				}	
+				Node pred = getVertexById(old.getPredecessors().get(i).getFrom());
+				pred.editDestination(old.getId(), n.getId());
 			}
 		}
-	
-		
-			mxCell c = (mxCell) cell;
-			System.out.println("cell:"+c.getId());
-			
-			if(c.getId().equals(n.getId()))
+
+		if(wasInitial)
+		{
+			if(n.isInitial())
 			{
-				System.out.println("Editing cell: "+c.getId());
-				
-				graph.cellLabelChanged(cell, n.getId(), false);
-				c.setId(n.getId());
-				if(n.isInitial())
-					c.setStyle("shape=ellipse;fillColor=yellow");
-				else
-					c.setStyle("shape=ellipse");
+				initialNavigation.get(pos).setId(n.getId());
+				initialNavigation.get(pos).setProbability(n.getProbability());
+			}else
+			{   //remove the old node, update it and add to nodes
+				initialNavigation.remove(pos);
+				old.setId(n.getId());
+				old.setInitial(false);
+				nodes.add(old);
 			}
 
+				
+				
+		}else
+		{
+			if(n.isInitial())
+			{
+				nodes.remove(pos);
+				old.setId(n.getId());
+				old.setInitial(true);
+				old.setProbability(n.getProbability());
+				initialNavigation.add(old);
+			}else
+				nodes.get(pos).setId(n.getId());
+		}
 		
+		
+		mxCell vertex = (mxCell) cell;	
+		vertex = (mxCell) vertices.get(vertex.getId());
+		
+		if(vertex != null)
+		{
+			for(int i=0; i < graph.getChildEdges(cell).length; i++)
+			{
+				mxCell ed = (mxCell) graph.getChildEdges(cell)[i];
+				NavigationTransition nav = (NavigationTransition) ed.getValue();
+				if(ed.getSource().getId().equals(vertex.getId()))
+				{
+					
+					updateEdge(n.getId(),nav.getTo(),nav.getProbability(),ed);
+				}
+				if(ed.getTarget().getId().equals(vertex.getId()))
+				{
+					updateEdge(nav.getFrom(), n.getId(),nav.getProbability(),ed);
+				}
+			}
+			
+			vertex.setId(n.getId());
+			graph.cellLabelChanged(vertex, n.getId(), false);	
+		}
+		
+		if(n.isInitial())
+		{
+			vertex.setStyle("shape=ellipse;fillColor=yellow");
+		}else
+		{
+			vertex.setStyle("shape=ellipse");
+		}
 
+	
+
+		
+		
+	
+	return true;
 	}
 	/*
 	 * Deletes the node from the graph and all the transitions going from and to the node.
@@ -318,14 +394,12 @@ public class WorkloadTest {
 	/*
 	 * Searches for a specific transition and returns it. If the transition doesn't exists returns null
 	 */
-	public NavigationTransition getNavigation(String from, String to, String prob)
+	public NavigationTransition getNavigation(String id)
 	{
 		NavigationTransition nav = null;
 		for(int i = 0; i < navigationTransition.size(); i++)
 		{
-			if(navigationTransition.get(i).getFrom().equals(from) &&
-				navigationTransition.get(i).getTo().equals(to) &&
-				navigationTransition.get(i).getProbability().equals(prob))
+			if(navigationTransition.get(i).toString().equals(id))
 			{
 				nav = navigationTransition.get(i);
 				break;
@@ -337,15 +411,14 @@ public class WorkloadTest {
 	/*
 	 * Updates the probability to a specific transition and updates the edge label
 	 */
-	public void updateEdge(String from, String to, String prob)
+	public void updateEdge(String from, String to, String prob, mxCell cell)
 	{
 
 		for(int i = 0; i < navigationTransition.size(); i++)
 		{
-			if(navigationTransition.get(i).getFrom().equals(from) &&
-				navigationTransition.get(i).getTo().equals(to))
+			if(navigationTransition.get(i).toString().equals(cell.getId()))
 			{
-				 navigationTransition.get(i).setProbability(prob);;
+				navigationTransition.get(i).setProbability(prob);
 				break;
 			}	
 		}
@@ -353,11 +426,12 @@ public class WorkloadTest {
 		graph.getModel().beginUpdate();
         try {
 
-        	Object edge = edges.get(from+"-"+to);
+        	Object edge = edges.get(cell.getId());
         	if(edge != null)
-        	{
-        		graph.cellLabelChanged(edge, prob, false);
-
+        	{	
+        		graph.getModel().remove(edge);
+        		edges.remove(cell.getId());     		
+        		addTransitionToGraph(new NavigationTransition(from,to, prob));
         	}
 
         	
@@ -376,8 +450,7 @@ public class WorkloadTest {
 	{
 		for(int i = 0; i < navigationTransition.size(); i++)
 		{
-			if(navigationTransition.get(i).getFrom().equals(nav.getFrom()) &&
-				navigationTransition.get(i).getTo().equals(nav.getTo()))
+			if(navigationTransition.get(i).toString().equals(nav.toString()))
 				navigationTransition.remove(i);
 		}
 		for(int i=0; i<initialNavigation.size();i++)
@@ -450,15 +523,16 @@ public class WorkloadTest {
 	return graph;
 	}
 	
+	
 	public mxGraph addTransitionToGraph(NavigationTransition nav)
 	{
 		graph.getModel().beginUpdate();
 		try
 		{
-			Object ed = graph.insertEdge(vertices.get(nav.getFrom()),nav.getFrom()+"-"+nav.getTo(), 
+			Object ed = graph.insertEdge(vertices.get(nav.getFrom()),nav.toString(), 
 					nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()));
 			graph.cellLabelChanged(ed, nav.getProbability(), false);
-			edges.put(nav.getFrom()+"-"+nav.getTo(), ed);
+			edges.put(nav.toString(), ed);
 
 		}
 		finally
@@ -562,48 +636,7 @@ public class WorkloadTest {
 		return false;
 	}
 	
-	/*
-	 * Checks if the graph is consistent. The probability of transitions from each node are 1 and there is a path to each node.
-	 * Returns:
-	 * 	0 if it is consistent.
-	 *  1 if the probability of the initial nodes is different to 1.
-	 *  2 if the probability of transition from a node is different to 1.
-	 *  3 if there is a node that can't be reached.
-	 *  
-	 *  
-	 *  TO DO: some probabilities are not weighted.
-	 */
-	
-	public int checkGraphConsistency()
-	{
-		int isConsistent = 0;
-		int sum = 0;
-		// Check that the sum of probabilities are equal to 1. isConsistent = 1 if otherwise
-		for(int i=0; i<initialNavigation.size();i++)
-		{
-			int sumTrans = 0;
-			sum += Integer.parseInt(initialNavigation.get(i).getProbability());
-			List<NavigationTransition> destinations = initialNavigation.get(i).getDestinations();
-			//Check that the sum of probabilities of transitions for each initial node is equal to 1; isConsistent = 2 if otherwise
-			for(int j=0; j < destinations.size();j++)
-			{
-				sumTrans += Integer.parseInt(destinations.get(j).getProbability());
-			}
-			if(sumTrans != 1) {isConsistent = 2; break;}
-			
-		}
-		if(sum != 1) isConsistent = 1;
-		
-		//Check that there is a node that has no predecessor. Returns 3 if there is one.
-		for(int i=0; i<nodes.size();i++)
-		{
-			if(nodes.get(i).getPredecessors()==null){ isConsistent = 3; break;}
-		}
-		
-		
-	return isConsistent;
-	}
-	
+
 	
 	/*
 	 * Create a XML file from the workload information and stores it in the given path.
@@ -770,4 +803,42 @@ public class WorkloadTest {
 		
 	}
 	
+	public void createJGraphXML(String path)
+	{
+		try {
+			Element graph = new Element("Graph");
+			graph.detach();
+			Document doc = new Document(graph);
+			Enumeration<String> vKeys = vertices.keys();
+			while(vKeys.hasMoreElements())
+			{
+				String key = vKeys.nextElement();
+				Object vertex = vertices.get(key);
+				mxCell v = (mxCell) vertex;
+				Element vert = new Element("Vertex");
+				vert.setAttribute("partent", v.getParent().getId());
+				vert.setAttribute("id", v.getId());
+				vert.setAttribute("pos_x",  Double.toString(v.getGeometry().getX()));
+				vert.setAttribute("pos_y", Double.toString(v.getGeometry().getY()));
+				vert.setAttribute("width", Double.toString(v.getGeometry().getWidth()));
+				vert.setAttribute("height", Double.toString(v.getGeometry().getHeight()));
+				vert.setAttribute("style", v.getStyle());
+				graph.addContent(vert);
+			}
+			
+			doc.getRootElement().addContent(navigationGraph);
+	 
+			
+			// new XMLOutputter().output(doc, System.out);
+			XMLOutputter xmlOutput = new XMLOutputter();
+	 
+			// display nice nice
+			xmlOutput.setFormat(Format.getPrettyFormat());
+			xmlOutput.output(doc, new FileWriter(path));
+	 
+			System.out.println("File Saved!");
+	  } catch (IOException io) {
+		System.out.println(io.getMessage());
+	  }
+	}
 }

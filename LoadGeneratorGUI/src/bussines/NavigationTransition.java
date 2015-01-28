@@ -25,5 +25,5 @@ public class NavigationTransition {
 	public void setTo(String t){this.to = t;}
 	public void setProbability(String p){probability = p;}
 	
-	public String toString(){return from+"-"+to;}
+	public String toString(){return from+"-"+to+"-"+probability;}
 }

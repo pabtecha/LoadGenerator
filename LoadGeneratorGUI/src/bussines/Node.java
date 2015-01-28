@@ -76,5 +76,21 @@ public class Node {
 			}
 		}
 	}
+	
+	public void editPredecessor(String old, String n)
+	{
+		for(int i=0; i < from.size(); i++)
+		{
+			if(from.get(i).getFrom().equals(old)){ from.get(i).setFrom(n);}
+		}
+	}
+	
+	public void editDestination(String old, String n)
+	{
+		for(int i=0; i < to.size(); i++)
+		{
+			if(to.get(i).getTo().equals(old)){ to.get(i).setTo(n);}
+		}
+	}
 	public String toString(){return id;}
 }
