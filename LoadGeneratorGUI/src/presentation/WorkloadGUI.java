@@ -646,6 +646,7 @@ public class WorkloadGUI extends JFrame {
 			  File file = fileChooser.getSelectedFile();
 			  // save to file
 			 wl.createXML(file.getAbsolutePath());
+			 wl.createJGraphXML("./graph/"+file.getName());
 			}
 		}
 		else
@@ -660,8 +661,21 @@ public class WorkloadGUI extends JFrame {
 		JFileChooser fileChooser = new JFileChooser();
 		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 		  File file = fileChooser.getSelectedFile();
+		  File fileGraph = new File("./graph/"+file.getName());
 		  // load from file
 		  wl.readXML(file.getAbsolutePath());
+		  System.out.println(fileGraph.getPath());
+		  if(fileGraph.exists() && fileGraph.isFile())
+		  {
+			  graphComponent.setGraph(wl.readGraphXML(fileGraph.getPath()));
+			  graphComponent.refresh();
+		  }else
+		  {
+			  System.out.println("generate a graph from workload");
+			  graphComponent.setGraph(wl.generateGraph());
+			  graphComponent.refresh();
+		  }
+			  
 		}
 		
 		txtWLId.setText(wl.getId());

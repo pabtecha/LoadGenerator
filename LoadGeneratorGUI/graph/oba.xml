@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graph>
+  <Vertex partent="1" id="cnn_obama" pos_x="225.0" pos_y="25.0" width="50.0" height="50.0" style="shape=ellipse" />
+  <Vertex partent="1" id="google_obama" pos_x="25.0" pos_y="25.0" width="50.0" height="50.0" style="shape=ellipse;fillColor=yellow" />
+  <Vertex partent="1" id="google_romney" pos_x="30.0" pos_y="150.0" width="50.0" height="50.0" style="shape=ellipse;fillColor=yellow" />
+  <Vertex partent="1" id="cnn_romney" pos_x="230.0" pos_y="150.0" width="50.0" height="50.0" style="shape=ellipse" />
+  <Edge partent="1" id="google_romney-cnn_romney-0.5" source="google_romney" target="cnn_romney" />
+  <Edge partent="1" id="cnn_romney-cnn_obama-0.3" source="cnn_romney" target="cnn_obama" />
+  <Edge partent="1" id="cnn_romney-google_obama-0.3" source="cnn_romney" target="google_obama" />
+  <Edge partent="1" id="google_romney-google_obama-0.25" source="google_romney" target="google_obama" />
+  <Edge partent="1" id="google_obama-cnn_obama-0.5" source="google_obama" target="cnn_obama" />
+  <Edge partent="1" id="cnn_obama-google_romney-0.3" source="cnn_obama" target="google_romney" />
+  <Edge partent="1" id="google_obama-google_romney-0.25" source="google_obama" target="google_romney" />
+  <Edge partent="1" id="cnn_obama-cnn_romney-0.3" source="cnn_obama" target="cnn_romney" />
+</Graph>

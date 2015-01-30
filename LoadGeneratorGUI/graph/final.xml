@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graph>
+  <Vertex partent="1" id="id4" pos_x="390.0" pos_y="60.0" width="50.0" height="50.0" style="shape=ellipse" />
+  <Vertex partent="1" id="id3" pos_x="230.0" pos_y="110.0" width="50.0" height="50.0" style="shape=ellipse" />
+  <Vertex partent="1" id="id2" pos_x="230.0" pos_y="10.0" width="50.0" height="50.0" style="shape=ellipse" />
+  <Vertex partent="1" id="id1" pos_x="20.0" pos_y="120.0" width="50.0" height="50.0" style="shape=ellipse;fillColor=yellow" />
+  <Vertex partent="1" id="id0" pos_x="20.0" pos_y="30.0" width="50.0" height="50.0" style="shape=ellipse;fillColor=yellow" />
+  <Edge partent="1" id="id2-id4-1" source="id2" target="id4" />
+  <Edge partent="1" id="id0-id3-0.5" source="id0" target="id3" />
+  <Edge partent="1" id="id0-id2-0.5" source="id0" target="id2" />
+  <Edge partent="1" id="id1-id3-0.5" source="id1" target="id3" />
+  <Edge partent="1" id="id1-id2-0.5" source="id1" target="id2" />
+  <Edge partent="1" id="id3-id4-1" source="id3" target="id4" />
+</Graph>

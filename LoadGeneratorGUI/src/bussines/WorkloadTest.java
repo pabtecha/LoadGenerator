@@ -31,8 +31,8 @@ public class WorkloadTest {
 	private List<Node> nodes;
 	private mxGraph graph;
 	private mxGraphComponent graphComponent;
-	private int width = 50;
-	private int height = 50;
+	private double width = 50;
+	private double height = 50;
 	private Hashtable<String,Object> vertices;
 	private Hashtable<String,Object> edges;
 	//Constructor
@@ -179,23 +179,6 @@ public class WorkloadTest {
 		
 		if(exists && !sameNode) //node already exists
 			return false;
-		
-		
-		//update predecessor and destination lists
-		if(!sameNode)
-		{
-			for(int i=0; i< old.getDestinations().size(); i++)
-			{
-				Node dest = getVertexById(old.getDestinations().get(i).getTo());
-				dest.editPredecessor(old.getId(), n.getId());					
-			}
-			
-			for(int i=0; i<old.getPredecessors().size(); i++)
-			{
-				Node pred = getVertexById(old.getPredecessors().get(i).getFrom());
-				pred.editDestination(old.getId(), n.getId());
-			}
-		}
 
 		if(wasInitial)
 		{
@@ -273,63 +256,13 @@ public class WorkloadTest {
 	{
 		System.out.println("Received node "+n.getId()+" for deletion");
 		if(n.getProbability()!=null) System.out.println(n.getProbability());
-		if(n.getDestinations()!=null)	System.out.println(n.getDestinations().toString());
-		if(n.getPredecessors()!=null)System.out.println(n.getPredecessors().toString());
-
 		if(n.isInitial())
 		{
-						
-			for(int i=0; i < n.getDestinations().size(); i++)
-			{
-				
-				for(int j=0; j < initialNavigation.size(); j++)
-				{
-					if(n.getDestinations().get(i).getTo().equals(initialNavigation.get(j).getId()))
-					{
-						nodes.get(j).removePredecessor(n.getId());
-					}
-						
-				}
-				for(int j=0; j < nodes.size(); j++)
-				{
-					if(n.getDestinations().get(i).getTo().equals(nodes.get(j).getId()))
-					{
-						nodes.get(j).removePredecessor(n.getId());
-					}
-						
-				}
-								
-			}
 			initialNavigation.remove(n);
 		}else
 		{
 			nodes.remove(n);
 			System.out.println("node removed");
-			for(int i=0; i < nodes.size(); i++)
-			{
-				System.out.println("nodes size:"+nodes.size());
-				for(int j=0; j < n.getDestinations().size(); j++)
-				{
-					System.out.println(n.getId()+" destinations = "+n.getDestinations().size());
-					if(n.getDestinations().get(j).getTo().equals(nodes.get(i).getId()))
-					{
-						nodes.get(i).removePredecessor(n.getId());
-						System.out.println("removing "+n.getId()+" as a destination of "+nodes.get(i));
-					}
-
-				}
-				
-				for(int k=0; k < n.getPredecessors().size(); k++)
-				{
-					System.out.println(n.getId()+" has"+n.getPredecessors().size() +" predecessors");
-					if(n.getPredecessors().get(k).getFrom().equals(nodes.get(i).getId()))
-					{
-						nodes.get(i).removeDestination(n.getId());
-						System.out.println("removing "+n.getId()+" as a predecessor of "+nodes.get(i));
-					}
-						
-				}
-			}
 			
 		}
 			graph.getModel().beginUpdate();
@@ -370,18 +303,7 @@ public class WorkloadTest {
 			}
 		
 		}
-		//Add the transition to the nodes.
-		for(int i=0; i<initialNavigation.size();i++)
-		{
-			if(initialNavigation.get(i).getId().equals(n.getFrom())){initialNavigation.get(i).addDestination(n); }
-			if(initialNavigation.get(i).getId().equals(n.getTo())){initialNavigation.get(i).addPredecessor(n);}
-		}
-		for(int i=0; i < nodes.size();i++)
-		{
-			if(nodes.get(i).getId().equals(n.getFrom())) nodes.get(i).addDestination(n);
-			if(nodes.get(i).getId().equals(n.getTo())) nodes.get(i).addPredecessor(n);
-		}
-		
+		//Add the transition to the nodes		
 		if(add)
 		{
 			navigationTransition.add(n);
@@ -391,6 +313,8 @@ public class WorkloadTest {
 		
 	return add;
 	}
+	
+	
 	/*
 	 * Searches for a specific transition and returns it. If the transition doesn't exists returns null
 	 */
@@ -452,16 +376,6 @@ public class WorkloadTest {
 		{
 			if(navigationTransition.get(i).toString().equals(nav.toString()))
 				navigationTransition.remove(i);
-		}
-		for(int i=0; i<initialNavigation.size();i++)
-		{
-			if(initialNavigation.get(i).getId().equals(nav.getFrom())){initialNavigation.get(i).removeDestination(nav.getFrom()); }
-			if(initialNavigation.get(i).getId().equals(nav.getTo())){initialNavigation.get(i).removePredecessor(nav.getTo());}
-		}
-		for(int i=0; i < nodes.size();i++)
-		{
-			if(nodes.get(i).getId().equals(nav.getFrom())) nodes.get(i).removeDestination(nav.getFrom());
-			if(nodes.get(i).getId().equals(nav.getTo())) nodes.get(i).removePredecessor(nav.getTo());
 		}
 		
 		graph.getModel().beginUpdate();
@@ -548,12 +462,12 @@ public class WorkloadTest {
 	/*
 	 * Generates a graph from the workload specification.
 	 */
-	public mxGraphComponent generateGraph()
+	public mxGraph generateGraph()
 	{	
-		List<Object> vertices = new ArrayList<Object>();
-		Object v;
-		int posX = 10;
-		int posY = 10;
+		Object v, ed;
+		double posX = 25;
+		double posY = 25;
+		double space = 100;
 
 
 		graph.getModel().beginUpdate();
@@ -562,22 +476,28 @@ public class WorkloadTest {
 			//add initialNavigations
 			for(int i=0;i<initialNavigation.size();i++)
 			{
-				v = graph.insertVertex(graph.getDefaultParent(),initialNavigation.get(i).getId(), initialNavigation.get(i), posX, posY+i*height, width,height);
-				vertices.add(v);
+				v = graph.insertVertex(graph.getDefaultParent(),initialNavigation.get(i).getId(), initialNavigation.get(i), posX, posY+i*(height+20), width,height,"shape=ellipse;fillColor=yellow" );
+				vertices.put(initialNavigation.get(i).getId(), v);
 			}
 			//add nodes
+			posX += space;
 			for(int i=0; i<nodes.size();i++)
-			{
-				v = graph.insertVertex(graph.getDefaultParent(),nodes.get(i).getId(), nodes.get(i), posX, posY+i*height, width,height);
-				vertices.add(v);
+			{	
+				if( i%5 == 0) posX += space;
+				
+				v = graph.insertVertex(graph.getDefaultParent(),nodes.get(i).getId(), nodes.get(i), posX, posY+i*(height+20), width,height,"shape=ellipse");
+				vertices.put(nodes.get(i).getId(), v);
 			}
 			
 			//add edges
 			for(int i=0;i<navigationTransition.size();i++)
 			{
 				//Properly connect the nodes "From" and "To"
-				graph.insertEdge(graph.getDefaultParent(),navigationTransition.get(i).getFrom()+"-"+navigationTransition.get(i).getTo(), 
-						navigationTransition.get(i),vertices.get(0),vertices.get(1));
+				ed = graph.insertEdge(graph.getDefaultParent(),navigationTransition.get(i).toString(), 
+						navigationTransition.get(i),vertices.get(navigationTransition.get(i).getFrom()),
+						vertices.get(navigationTransition.get(i).getTo()));
+				graph.cellLabelChanged(ed, navigationTransition.get(i).getProbability(), false);
+				edges.put(navigationTransition.get(i).toString(), ed);
 			}
 		}
 		finally
@@ -585,8 +505,8 @@ public class WorkloadTest {
 		//end transaction with endUpdate
 		graph.getModel().endUpdate();
 		}
-		graphComponent.setGraph(graph);
-		return graphComponent;
+
+		return graph;
 	}
 	
 	/*
@@ -649,8 +569,6 @@ public class WorkloadTest {
 			workload.setAttribute("serializerClass", "com.isoco.guernica.core.store.fs.serializer."+getSerializerClass());
 			workload.detach();
 			Document doc = new Document(workload);
-
-
 
 			
 			Element userNum = new Element("UsersNumber");
@@ -803,12 +721,14 @@ public class WorkloadTest {
 		
 	}
 	
+
 	public void createJGraphXML(String path)
 	{
 		try {
 			Element graph = new Element("Graph");
 			graph.detach();
 			Document doc = new Document(graph);
+			
 			Enumeration<String> vKeys = vertices.keys();
 			while(vKeys.hasMoreElements())
 			{
@@ -823,11 +743,25 @@ public class WorkloadTest {
 				vert.setAttribute("width", Double.toString(v.getGeometry().getWidth()));
 				vert.setAttribute("height", Double.toString(v.getGeometry().getHeight()));
 				vert.setAttribute("style", v.getStyle());
-				graph.addContent(vert);
+				doc.getRootElement().addContent(vert);
 			}
 			
-			doc.getRootElement().addContent(navigationGraph);
-	 
+			Enumeration<String> eKeys = edges.keys();
+			while(eKeys.hasMoreElements())
+			{
+				String key = eKeys.nextElement();
+				Object edge = edges.get(key);
+				mxCell e = (mxCell) edge;
+				Element ed = new Element("Edge");
+				ed.setAttribute("partent", e.getParent().getId());
+				ed.setAttribute("id", e.getId());
+				ed.setAttribute("source", e.getSource().getId());
+				ed.setAttribute("target",e.getTarget().getId());
+				doc.getRootElement().addContent(ed);
+				System.out.println(e.getId());
+			}
+			
+		
 			
 			// new XMLOutputter().output(doc, System.out);
 			XMLOutputter xmlOutput = new XMLOutputter();
@@ -836,9 +770,87 @@ public class WorkloadTest {
 			xmlOutput.setFormat(Format.getPrettyFormat());
 			xmlOutput.output(doc, new FileWriter(path));
 	 
-			System.out.println("File Saved!");
+			System.out.println("File Graph Saved!");
 	  } catch (IOException io) {
 		System.out.println(io.getMessage());
 	  }
+	
+	
 	}
+	
+	public mxGraph readGraphXML(String path)
+	{
+		  SAXBuilder builder = new SAXBuilder();
+		  File xmlFile = new File(path);
+		  
+		  try {
+	 
+			
+			Document document = (Document) builder.build(xmlFile);
+			Element rootNode = document.getRootElement();
+			
+			List<Element> verts = rootNode.getChildren("Vertex");
+			List<Element> eds = rootNode.getChildren("Edge");
+			
+			System.out.println("Number of vertices: "+verts.size());
+			
+			Object v, ed;
+			double pos_x;
+			double pos_y;
+			
+			graph.getModel().beginUpdate();
+			try
+			{	
+				for (int i = 0; i < verts.size(); i++)
+				{
+				   Element node = (Element) verts.get(i);
+				   Node n = getVertexById(node.getAttributeValue("id"));
+					
+	
+				   pos_x = Double.parseDouble(node.getAttributeValue("pos_x"));
+				   pos_y = Double.parseDouble(node.getAttributeValue("pos_y"));
+				   width = Double.parseDouble(node.getAttributeValue("width"));
+				   height = Double.parseDouble(node.getAttributeValue("height"));
+					
+				   v = graph.insertVertex(node.getAttributeValue("parent"),n.getId(),n, pos_x, pos_y, width,height,node.getAttributeValue("style"));
+	
+				   vertices.put(n.getId(), v);
+				}
+				System.out.println("Number of edges: "+eds.size());
+				
+				for(int i =0; i<eds.size();i++)
+				{
+					Element edge = (Element) eds.get(i);
+					System.out.println("getting nav: "+edge.getAttributeValue("id"));
+					NavigationTransition trans = getNavigation(edge.getAttributeValue("id"));
+					System.out.println("got nav: "+ trans.toString());
+					
+					ed = graph.insertEdge(edge.getAttributeValue("parent"), edge.getAttributeValue("id"), trans, vertices.get(edge.getAttributeValue("source")),
+							vertices.get(edge.getAttributeValue("target")));
+					System.out.println("new label: "+trans.getProbability());
+					graph.cellLabelChanged(ed,trans.getProbability() , false);
+					edges.put(edge.getAttributeValue("id"), ed);
+				}
+
+ 
+			}
+			
+			finally
+			{
+				//end transaction with endUpdate
+				graph.getModel().endUpdate();
+
+			}
+
+
+			
+		  } catch (IOException io) {
+			System.out.println(io.getMessage());
+		  } catch (JDOMException jdomex) {
+			System.out.println(jdomex.getMessage());
+		  }
+		  
+		  return graph;
+		}
+	
 }
