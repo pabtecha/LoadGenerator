@@ -156,7 +156,11 @@ public class WorkloadTest {
 		boolean sameNode = false;
 		
 		if(n.getId().equals(old.getId()))
+		{
 			sameNode = true;
+			System.out.println("The node keeps the same id");
+		}
+
 		//search the position where the old node was, and check if the new id is already taken
 		for(int i=0; i < initialNavigation.size(); i++)
 		{
@@ -177,17 +181,24 @@ public class WorkloadTest {
 				exists = true;			
 		}
 		
-		if(exists && !sameNode) //node already exists
+		if(exists && !sameNode)
+		{
+			System.out.println("The new id already exists");
+			//node already exists
 			return false;
+		}
+			
 
 		if(wasInitial)
 		{
 			if(n.isInitial())
 			{
+				System.out.println("The old node was at: "+ pos+" with id: "+initialNavigation.get(pos).getId()+ " and the new id is: "+ n.getId());
 				initialNavigation.get(pos).setId(n.getId());
 				initialNavigation.get(pos).setProbability(n.getProbability());
 			}else
 			{   //remove the old node, update it and add to nodes
+				System.out.println("The old node was at: "+ pos+" with id: "+initialNavigation.get(pos).getId()+ " and the new id is: "+ n.getId());
 				initialNavigation.remove(pos);
 				old.setId(n.getId());
 				old.setInitial(false);
@@ -199,20 +210,24 @@ public class WorkloadTest {
 		}else
 		{
 			if(n.isInitial())
-			{
+			{	System.out.println("The old node was at: "+ pos+" with id: "+nodes.get(pos).getId()+ " and the new id is: "+ n.getId());
 				nodes.remove(pos);
 				old.setId(n.getId());
 				old.setInitial(true);
 				old.setProbability(n.getProbability());
 				initialNavigation.add(old);
 			}else
+			{
+				System.out.println("The old node was at: "+ pos+" with id: "+nodes.get(pos).getId()+ " and the new id is: "+ n.getId());
 				nodes.get(pos).setId(n.getId());
+			}
+				
 		}
 		
 		
 		mxCell vertex = (mxCell) cell;	
 		vertex = (mxCell) vertices.get(vertex.getId());
-		
+		vertices.remove(vertex.getId());
 		if(vertex != null)
 		{
 			for(int i=0; i < graph.getChildEdges(cell).length; i++)
@@ -229,8 +244,9 @@ public class WorkloadTest {
 					updateEdge(nav.getFrom(), n.getId(),nav.getProbability(),ed);
 				}
 			}
-			
+
 			vertex.setId(n.getId());
+			vertices.put(vertex.getId(), vertex);
 			graph.cellLabelChanged(vertex, n.getId(), false);	
 		}
 		
@@ -306,6 +322,7 @@ public class WorkloadTest {
 		//Add the transition to the nodes		
 		if(add)
 		{
+			System.out.println("adding transition from: "+n.getFrom()+" to: "+n.getTo());
 			navigationTransition.add(n);
 			
 		}
@@ -395,11 +412,7 @@ public class WorkloadTest {
         }
         graphComponent.setGraph(graph);
 		
-	}
-
-		
-
-	
+	}	
 	/*
 	 * Delete transitions that contains a specific node
 	 */
@@ -440,6 +453,8 @@ public class WorkloadTest {
 	
 	public mxGraph addTransitionToGraph(NavigationTransition nav)
 	{
+		System.out.println("transition from: "+nav.getFrom()+" to: "+nav.getTo()+" added to graph");
+		System.out.println("the cell is:" +vertices.get(nav.getFrom()).toString());
 		graph.getModel().beginUpdate();
 		try
 		{
@@ -555,8 +570,6 @@ public class WorkloadTest {
 		System.out.println("I'm not empty");
 		return false;
 	}
-	
-
 	
 	/*
 	 * Create a XML file from the workload information and stores it in the given path.

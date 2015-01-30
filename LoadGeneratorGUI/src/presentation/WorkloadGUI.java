@@ -115,7 +115,7 @@ public class WorkloadGUI extends JFrame {
 					if (SwingUtilities.isRightMouseButton(e)) {
 						// Find Cell in Model Coordinates
 						final mxCell cell = (mxCell)graphComponent.getCellAt(e.getX(), e.getY());
-	
+						System.out.println("Mouse pressed at cell:" +cell.getId());
 						// Create PopupMenu for the Cell
 						JPopupMenu menu =  new JPopupMenu();
 						if(cell != null && cell.isVertex())
@@ -141,9 +141,9 @@ public class WorkloadGUI extends JFrame {
 								  Node n = wl.getVertexById(cell.getId());							  
 								  txtNID.setText(n.getId());
 								  if(n.isInitial()){
-									  txtNProb.setText(n.getProbability());
 									  chckbxIsInitial.setSelected(true);
 									  isInitial = true;
+									  txtNProb.setText(n.getProbability());
 								  }else
 								  {
 									  txtNProb.setText("");
@@ -443,6 +443,8 @@ public class WorkloadGUI extends JFrame {
 					wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()), cell);
 				else
 					wl.updateNode(new Node(txtNID.getText()),cell);
+				
+				graphComponent.refresh();
 			}
 		});
 		GridBagConstraints gbc_btnEditNode = new GridBagConstraints();
@@ -624,7 +626,11 @@ public class WorkloadGUI extends JFrame {
 		{
 			
 			added = wl.addTransition(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText()));
-			if(added) graphComponent.setGraph( wl.addTransitionToGraph(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText())));
+			if(added)
+			{
+				graphComponent.setGraph( wl.addTransitionToGraph(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText())));
+				graphComponent.refresh();
+			}
 			
 			if(!added)
 			{ 
