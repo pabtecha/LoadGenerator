@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jdom2.Document;
@@ -18,6 +19,7 @@ import org.jdom2.output.XMLOutputter;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 
@@ -139,7 +141,8 @@ public class WorkloadTest {
 			}
 		}
 
-		
+		printGraph();
+		printJGraph();
 	return !ex;
 	}
 	/*
@@ -260,8 +263,8 @@ public class WorkloadTest {
 
 	
 
-		
-		
+		printGraph();
+		printJGraph();
 	
 	return true;
 	}
@@ -296,15 +299,18 @@ public class WorkloadTest {
             graphComponent.setGraph(graph);
 			//delete transitions
 			removeTransitions(n);
+			
+			printGraph();
+			printJGraph();
 	}
 	
 	
 	/*
 	 * If the transition does not already exist, it is added to the list and returns true
 	 */
-	public boolean addTransition(NavigationTransition n)
+	public int addTransition(NavigationTransition n)
 	{
-		boolean add = true;
+		int add = 0;
 		
 		if(navigationTransition == null) navigationTransition = new ArrayList<NavigationTransition>();
 		for(int i=0; i<navigationTransition.size();i++)
@@ -314,20 +320,30 @@ public class WorkloadTest {
 				navigationTransition.get(i).getTo().equals(n.getTo()) &&
 				navigationTransition.get(i).getProbability().equals(n.getProbability())){
 
-				add = false;
+				add = 2;
 				break;
 			}
 		
 		}
 		//Add the transition to the nodes		
-		if(add)
+		if(add==0)
 		{
-			System.out.println("adding transition from: "+n.getFrom()+" to: "+n.getTo());
-			navigationTransition.add(n);
+			Node from = getVertexById(n.getFrom());
+			Node to = getVertexById(n.getTo());
+			if(from != null && to != null)
+			{
+				navigationTransition.add(n);
+			}
+			else
+			{
+				add = 1;
+			}
+
 			
 		}
 
-		
+		printGraph();
+		printJGraph();
 	return add;
 	}
 	
@@ -380,7 +396,8 @@ public class WorkloadTest {
             graph.getModel().endUpdate();
         }
         graphComponent.setGraph(graph);
-		
+        printGraph();
+        printJGraph();
 	}
 	
 	/*
@@ -411,19 +428,41 @@ public class WorkloadTest {
             graph.getModel().endUpdate();
         }
         graphComponent.setGraph(graph);
-		
+        printGraph();
+        printJGraph();
 	}	
 	/*
 	 * Delete transitions that contains a specific node
 	 */
 	public void removeTransitions(Node n)
 	{
-		for(int i = 0; i < navigationTransition.size(); i++)
+		Iterator<NavigationTransition> i = navigationTransition.iterator();
+		while (i.hasNext()) 
 		{
-			if(navigationTransition.get(i).getFrom().equals(n.getId()) ||
-				navigationTransition.get(i).getTo().equals(n.getId()))
-				navigationTransition.remove(i);
+			   NavigationTransition nav = i.next();
+			   if(nav.getFrom().equals(n.getId()) ||
+				nav.getTo().equals(n.getId()))
+				   i.remove();
+			   
 		}
+		
+	/*	for(NavigationTransition nav : navigationTransition)
+		{
+			System.out.println("from:"+nav.getFrom()+" to: "+nav.getTo());
+			if(nav.getFrom().equals(n.getId())){
+				System.out.println("from: "+nav.getFrom()+" is equal to: "+n.getId());
+				navigationTransition.remove(nav);
+			}
+			
+			if(nav.getTo().equals(n.getId())){
+				System.out.println("to: "+nav.getTo()+" is equal to: "+n.getId());
+				navigationTransition.remove(nav);
+			}
+			
+			if(nav.getFrom().equals(n.getId()) ||
+				nav.getTo().equals(n.getId()))
+				navigationTransition.remove(nav);
+		}*/
 	}
 
 	/*
@@ -447,6 +486,7 @@ public class WorkloadTest {
 
 		}
 		graphComponent.setGraph(graph);
+		printJGraph();
 	return graph;
 	}
 	
@@ -461,6 +501,7 @@ public class WorkloadTest {
 			Object ed = graph.insertEdge(vertices.get(nav.getFrom()),nav.toString(), 
 					nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()));
 			graph.cellLabelChanged(ed, nav.getProbability(), false);
+			//graph.getModel().getGeometry(ed).setOffset(new mxPoint(10.0,50.0));
 			edges.put(nav.toString(), ed);
 
 		}
@@ -472,6 +513,7 @@ public class WorkloadTest {
 			graphComponent.setGraph(graph);
 
 		}
+		printJGraph();
 	return graph;
 	}
 	/*
@@ -512,6 +554,7 @@ public class WorkloadTest {
 						navigationTransition.get(i),vertices.get(navigationTransition.get(i).getFrom()),
 						vertices.get(navigationTransition.get(i).getTo()));
 				graph.cellLabelChanged(ed, navigationTransition.get(i).getProbability(), false);
+		//		graph.getModel().getGeometry(ed).setOffset(new mxPoint(10.0,50.0));
 				edges.put(navigationTransition.get(i).toString(), ed);
 			}
 		}
@@ -734,6 +777,18 @@ public class WorkloadTest {
 		
 	}
 	
+	public void printJGraph()
+	{
+		Object[] cells = graph.getChildCells(graph.getDefaultParent());
+		
+		for(Object c : cells)
+		{
+			mxCell cell = (mxCell) c;
+			System.out.println("Cell id is:" +cell.getId());
+		}
+		
+	}
+	
 
 	public void createJGraphXML(String path)
 	{
@@ -842,6 +897,7 @@ public class WorkloadTest {
 							vertices.get(edge.getAttributeValue("target")));
 					System.out.println("new label: "+trans.getProbability());
 					graph.cellLabelChanged(ed,trans.getProbability() , false);
+				//	graph.getModel().getGeometry(ed).setOffset(new mxPoint(10.0,50.0));
 					edges.put(edge.getAttributeValue("id"), ed);
 				}
 
@@ -855,7 +911,7 @@ public class WorkloadTest {
 
 			}
 
-
+			printJGraph();
 			
 		  } catch (IOException io) {
 			System.out.println(io.getMessage());

@@ -175,5 +175,15 @@ public class Navigation {
 		  }
 		}
 	
-	
+	public boolean isEmpty()
+	{
+		if(id.equals(""))
+			return true;
+		if(inputData.getName().equals("") || inputData.getValue().equals(""))
+			return true;
+		if(exCode.getName().equals(""))
+			return true;
+
+	return false;
+	}
 }

@@ -78,6 +78,8 @@ public class WorkloadGUI extends JFrame {
 	private Component rigidArea;
 	private JButton btnEditNode;
 	private JButton btnEditTransition;
+	private JMenu mnNavigation;
+	private JMenuItem mntmNewNav;
 	
 	
 	/**
@@ -216,10 +218,10 @@ public class WorkloadGUI extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JMenu mnArchivo = new JMenu("Archivo");
+		JMenu mnArchivo = new JMenu("File");
 		menuBar.add(mnArchivo);
 		
-		JMenuItem mntmNuevo = new JMenuItem("Nuevo");
+		JMenuItem mntmNuevo = new JMenuItem("New");
 		mntmNuevo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				newWorkloadFile(e);
@@ -227,7 +229,7 @@ public class WorkloadGUI extends JFrame {
 		});
 		mnArchivo.add(mntmNuevo);
 		
-		JMenuItem mntmAbrir = new JMenuItem("Abrir");
+		JMenuItem mntmAbrir = new JMenuItem("Open");
 		mntmAbrir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadWorkload();
@@ -235,7 +237,7 @@ public class WorkloadGUI extends JFrame {
 		});
 		mnArchivo.add(mntmAbrir);
 		
-		JMenuItem mntmGuardar = new JMenuItem("Guardar");
+		JMenuItem mntmGuardar = new JMenuItem("Save");
 		mntmGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveWorkload();
@@ -246,13 +248,25 @@ public class WorkloadGUI extends JFrame {
 		JSeparator separator = new JSeparator();
 		mnArchivo.add(separator);
 		
-		JMenuItem mntmSalir = new JMenuItem("Salir");
+		JMenuItem mntmSalir = new JMenuItem("Exit");
 		mntmSalir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
 		mnArchivo.add(mntmSalir);
+		
+		mnNavigation = new JMenu("Navigation");
+		menuBar.add(mnNavigation);
+		
+		mntmNewNav = new JMenuItem("New");
+		mntmNewNav.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				NavigationGUI navGUI = new NavigationGUI();
+				navGUI.setVisible(true);
+			}
+		});
+		mnNavigation.add(mntmNewNav);
 		contentPane = new JPanel();
 		contentPane.setMinimumSize(new Dimension(600, 500));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -573,6 +587,9 @@ public class WorkloadGUI extends JFrame {
 		txtTo.setText(null);
 		txtTProb.setText(null);
 		chckbxIsInitial.setSelected(false);
+		graph = new mxGraph();
+		graphComponent.setGraph(graph);
+		graphComponent.refresh();
 	}
 
 	
@@ -619,20 +636,24 @@ public class WorkloadGUI extends JFrame {
 	
 	public void addTransition()
 	{
-		boolean added;
+		int added;
 		if(txtFrom.getText().equals("") || txtTo.getText().equals("") || txtTProb.getText().equals(""))
 			JOptionPane.showMessageDialog(this,"The transition has empty parameters","ERROR",JOptionPane.ERROR_MESSAGE);
 		else
 		{
 			
 			added = wl.addTransition(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText()));
-			if(added)
+			if(added == 0)
 			{
 				graphComponent.setGraph( wl.addTransitionToGraph(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText())));
 				graphComponent.refresh();
 			}
 			
-			if(!added)
+			if(added==1)
+			{ 
+				JOptionPane.showMessageDialog(this,"One of the nodes doesn't exist","ERROR",JOptionPane.ERROR_MESSAGE);
+			}
+			if(added==2)
 			{ 
 				JOptionPane.showMessageDialog(this,"This transition already exists","ERROR",JOptionPane.ERROR_MESSAGE);
 			}
@@ -669,12 +690,22 @@ public class WorkloadGUI extends JFrame {
 		  File file = fileChooser.getSelectedFile();
 		  File fileGraph = new File("./graph/"+file.getName());
 		  // load from file
+		
 		  wl.readXML(file.getAbsolutePath());
 		  System.out.println(fileGraph.getPath());
 		  if(fileGraph.exists() && fileGraph.isFile())
 		  {
-			  graphComponent.setGraph(wl.readGraphXML(fileGraph.getPath()));
-			  graphComponent.refresh();
+			  int reply = JOptionPane.showConfirmDialog(null, "Would you like to load the associated graph?", "Graph file found.", JOptionPane.YES_NO_OPTION);
+		        if (reply == JOptionPane.YES_OPTION) {
+					  graphComponent.setGraph(wl.readGraphXML(fileGraph.getPath()));
+					  graphComponent.refresh();
+		        }
+		        else {
+					  System.out.println("generate a graph from workload");
+					  graphComponent.setGraph(wl.generateGraph());
+					  graphComponent.refresh();
+		        }
+
 		  }else
 		  {
 			  System.out.println("generate a graph from workload");

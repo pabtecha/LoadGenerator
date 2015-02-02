@@ -14,6 +14,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -22,6 +23,7 @@ import bussines.ExecutionCode;
 import bussines.InputData;
 import bussines.Navigation;
 import bussines.StatisticAttribute;
+
 import javax.swing.JToolBar;
 
 public class NavigationGUI extends JFrame {
@@ -75,7 +77,7 @@ public class NavigationGUI extends JFrame {
 		nav = new Navigation("",new InputData("",""),new ExecutionCode(""));
 		
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 396, 429);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -95,6 +97,11 @@ public class NavigationGUI extends JFrame {
 		contentPane.add(toolBar, gbc_toolBar);
 		
 		btnSave_1 = new JButton("Save");
+		btnSave_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveNavigation();
+			}
+		});
 		toolBar.add(btnSave_1);
 		
 		btnOpen = new JButton("Open");
@@ -219,7 +226,7 @@ public class NavigationGUI extends JFrame {
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				dispose();
 			}
 		});
 		GridBagConstraints gbc_btnCancel = new GridBagConstraints();
@@ -240,34 +247,44 @@ public class NavigationGUI extends JFrame {
 		nav.setInputData(new InputData(txtInputName.getText(),txtParamValue.getText()));
 		nav.setExecutionCode(new ExecutionCode(txtPCA.getText()));
 		
-		if(chckNavigationTime.isSelected())	nav.addStatisticAttribute(new StatisticAttribute(chckNavigationTime.getText()));
-		if(chckExecutionTime.isSelected()) nav.addStatisticAttribute(new StatisticAttribute(chckExecutionTime.getText()));
-		if(chckHttpRoute.isSelected())
-		{
-			StatisticAttribute	httpStat = new StatisticAttribute(chckHttpRoute.getText());
-			if(chckURL.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckURL.getText()));
-			if(chckbxHttpmethod.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxHttpmethod.getText()));
-			if(chckbxStablished.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxStablished.getText()));
-			if(chckbxStablishmenttime.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxStablishmenttime.getText()));
-			if(chckbxTransfertime.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxTransfertime.getText()));
-			if(chckbxThinkUserTime.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxThinkUserTime.getText()));
-			if(chckbxContentSize.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxContentSize.getText()));
-			
-			nav.addStatisticAttribute(httpStat);
+		if(nav.isEmpty())
+		{ 
+			JOptionPane.showMessageDialog(this,"Some parameters are empty","ERROR",JOptionPane.ERROR_MESSAGE);
 		}
+		else
+		{
+
+			
+			if(chckNavigationTime.isSelected())	nav.addStatisticAttribute(new StatisticAttribute(chckNavigationTime.getText()));
+			if(chckExecutionTime.isSelected()) nav.addStatisticAttribute(new StatisticAttribute(chckExecutionTime.getText()));
+			if(chckHttpRoute.isSelected())
+			{
+				StatisticAttribute	httpStat = new StatisticAttribute(chckHttpRoute.getText());
+				if(chckURL.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckURL.getText()));
+				if(chckbxHttpmethod.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxHttpmethod.getText()));
+				if(chckbxStablished.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxStablished.getText()));
+				if(chckbxStablishmenttime.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxStablishmenttime.getText()));
+				if(chckbxTransfertime.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxTransfertime.getText()));
+				if(chckbxThinkUserTime.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxThinkUserTime.getText()));
+				if(chckbxContentSize.isSelected()) httpStat.addStatisticAttribute(new StatisticAttribute(chckbxContentSize.getText()));
 				
-		if(chckbxTimestamp.isSelected()) nav.addStatisticAttribute(new StatisticAttribute(chckbxTimestamp.getText()));
-		
-		
-		
-		JFileChooser fileChooser = new JFileChooser();
-		if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-		  File file = fileChooser.getSelectedFile();
-		  // save to file
-		 nav.createXML(file.getAbsolutePath());
+				nav.addStatisticAttribute(httpStat);
+			}
+					
+			if(chckbxTimestamp.isSelected()) nav.addStatisticAttribute(new StatisticAttribute(chckbxTimestamp.getText()));
+			
+			
+			
+			JFileChooser fileChooser = new JFileChooser();
+			if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			  File file = fileChooser.getSelectedFile();
+			  // save to file
+			 nav.createXML(file.getAbsolutePath());
+			}
+
+			
 		}
 
-		
 	}
 	
 	public void openNavigation()
