@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graph>
+  <Vertex partent="1" id="a" pos_x="250.0" pos_y="100.0" width="50.0" height="50.0" style="shape=ellipse" />
+</Graph>

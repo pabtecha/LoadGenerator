@@ -1,3 +1,8 @@
+/*
+ * @author: Nicolás Terevinto
+ * @version: 1.0
+ */
+
 package bussines;
 
 
@@ -37,7 +42,14 @@ public class WorkloadTest {
 	private double height = 50;
 	private Hashtable<String,Object> vertices;
 	private Hashtable<String,Object> edges;
-	//Constructor
+	
+
+	/*
+	 * WorkloadTest constructor
+	 * @param id 				workload identifier.
+	 * @param usersNumber		string with the number of users.
+	 * @param serializerClass	string with the serializer.
+	 */
 	public WorkloadTest(String id, String usersNumber,String serializerClass){
 
 		this.id = id;
@@ -53,15 +65,40 @@ public class WorkloadTest {
 	
 	
 	//gets
+	/*
+	 * Returns the workload id.
+	 * @return id
+	 */
 	public String getId(){return id;}
+	/*
+	 * Returns the number of users.
+	 * @return usersNumber
+	 */
 	public String getUsersNumber(){return usersNumber;}
+	/*
+	 * Returns the serializer.
+	 * @return serializerClass
+	 */
 	public String getSerializerClass(){return serializerClass;}
+	/*
+	 * Returns the list of initial nodes.
+	 * @return initialNavigation
+	 */
 	public List<Node> getInitialNavigation(){return initialNavigation;}
+	/*
+	 * Returns the list of transitions
+	 * @return navigationTransition
+	 */
 	public List<NavigationTransition> getNavigationTransition(){return navigationTransition;}
+	/*
+	 * Returns the list of non-initial nodes.
+	 * @return nodes
+	 */
 	public List<Node> getNodes(){return nodes;}
 	
 	/*
-	 * Searches the node with the given id and returns it. Returns null if the node doesn't exists
+	 * Searches the non-initial node with the given id and returns it. Returns null if the node doesn't exists
+	 * @return Node
 	 */
 	public Node getNodeById(String id)
 	{
@@ -74,6 +111,10 @@ public class WorkloadTest {
 		return null;
 	}
 	
+	/*
+	 * Searches the initial node with the given id and returns it. Returns null if the node doesn't exists
+	 * @return Node
+	 */
 	public Node getInitialNodeById(String id)
 	{
 		for(int i=0; i<initialNavigation.size(); i++)
@@ -83,7 +124,11 @@ public class WorkloadTest {
 		
 		return null;
 	}
-	/*Searches a node by Id looking without considering whether it is an initial node or not. Returns null if the node doesn't exists*/
+	
+	/*
+	 * Searches a node by Id looking without considering whether it is an initial node or not. Returns null if the node doesn't exists
+	 * @return Node
+	 */
 	public Node getVertexById(String id)
 	{
 		Node n;
@@ -95,8 +140,18 @@ public class WorkloadTest {
 	
 	
 	//sets
-	public void setId(String id){this.id=id; if(id == "") System.out.println("id changed to empty");}
+	
+	/*
+	 * Sets the workload id.
+	 */
+	public void setId(String id){this.id=id;}
+	/*
+	 * Sets the number of users
+	 */
 	public void setUsersNumber(String num){usersNumber=num;}
+	/*
+	 * Set the serializer.
+	 */
 	public void setSerializerClass(String sc){serializerClass=sc;}
 	
 	
@@ -120,9 +175,9 @@ public class WorkloadTest {
 	}
 	
 	/*
-	 * If the node does not already exist, it is added to the list and returns true
-	 */
-	
+	 * If the node does not already exist, it is added to the list and returns true.
+	 * @return ex
+	 */	
 	public boolean addNode(Node n)
 	{
 		boolean ex;
@@ -147,8 +202,8 @@ public class WorkloadTest {
 	}
 	/*
 	 * Updates a node, setting its new values on both the workload and the graph representation.
-	 */
-	
+	 * @return boolean
+	 */	
 	public boolean updateNode(Node n, Object cell)
 	{
 		mxCell c = (mxCell) cell;
@@ -268,6 +323,7 @@ public class WorkloadTest {
 	
 	return true;
 	}
+	
 	/*
 	 * Deletes the node from the graph and all the transitions going from and to the node.
 	 */	
@@ -306,7 +362,10 @@ public class WorkloadTest {
 	
 	
 	/*
-	 * If the transition does not already exist, it is added to the list and returns true
+	 * Adds the given transition to the workload only if the transition doesn't exist and both nodes exist.
+	 * @return 0 if node is added
+	 * @return 1 if at least one of the nodes doesn't exist
+	 * @return 2 if the transition already exists
 	 */
 	public int addTransition(NavigationTransition n)
 	{
@@ -350,6 +409,7 @@ public class WorkloadTest {
 	
 	/*
 	 * Searches for a specific transition and returns it. If the transition doesn't exists returns null
+	 * @return navigation
 	 */
 	public NavigationTransition getNavigation(String id)
 	{
@@ -366,7 +426,7 @@ public class WorkloadTest {
 	}
 	
 	/*
-	 * Updates the probability to a specific transition and updates the edge label
+	 * Updates the probability to a specific transition and updates the edge label.
 	 */
 	public void updateEdge(String from, String to, String prob, mxCell cell)
 	{
@@ -403,7 +463,6 @@ public class WorkloadTest {
 	/*
 	 * Deletes a transition from the workload and the graph.
 	 */
-	
 	public void deleteTransition(NavigationTransition nav)
 	{
 		for(int i = 0; i < navigationTransition.size(); i++)
@@ -445,30 +504,12 @@ public class WorkloadTest {
 				   i.remove();
 			   
 		}
-		
-	/*	for(NavigationTransition nav : navigationTransition)
-		{
-			System.out.println("from:"+nav.getFrom()+" to: "+nav.getTo());
-			if(nav.getFrom().equals(n.getId())){
-				System.out.println("from: "+nav.getFrom()+" is equal to: "+n.getId());
-				navigationTransition.remove(nav);
-			}
-			
-			if(nav.getTo().equals(n.getId())){
-				System.out.println("to: "+nav.getTo()+" is equal to: "+n.getId());
-				navigationTransition.remove(nav);
-			}
-			
-			if(nav.getFrom().equals(n.getId()) ||
-				nav.getTo().equals(n.getId()))
-				navigationTransition.remove(nav);
-		}*/
 	}
 
 	/*
-	 * Adds nodes to the graph from this workload and returns it.
+	 * Adds nodes to the graph from this workload and returns the updated graph.
+	 * @return mxGraph
 	 */
-	
 	public mxGraph addNodeToGraph(Node n, boolean isIni)
 	{
 		Object v;
@@ -490,7 +531,10 @@ public class WorkloadTest {
 	return graph;
 	}
 	
-	
+	/*
+	 * Adds a transition to the graph and returns the updated graph.
+	 * @return mxGraph
+	 */
 	public mxGraph addTransitionToGraph(NavigationTransition nav)
 	{
 		System.out.println("transition from: "+nav.getFrom()+" to: "+nav.getTo()+" added to graph");
@@ -518,6 +562,7 @@ public class WorkloadTest {
 	}
 	/*
 	 * Generates a graph from the workload specification.
+	 * @return mxGraph
 	 */
 	public mxGraph generateGraph()
 	{	
@@ -568,7 +613,7 @@ public class WorkloadTest {
 	}
 	
 	/*
-	 * If the node already exists the function updates its value and returns true, otherwise returns false
+	 * If the node already exists the function returns true, otherwise returns false.
 	 */
 	private boolean exists(Node n)
 	{
@@ -601,7 +646,6 @@ public class WorkloadTest {
 	/*
 	 * Checks if some of the parameters on this Workload are empty. Return true if there is an empty parameter.
 	 */
-
 	public boolean isEmpty()
 	{
 		if(id.equals("")) System.out.println("id is empty");
@@ -683,7 +727,6 @@ public class WorkloadTest {
 	/*
 	 * Read the XML file given and parses it to generate a workload.
 	 */
-	
 	public void readXML(String path)
 	{
 		  SAXBuilder builder = new SAXBuilder();
@@ -744,7 +787,7 @@ public class WorkloadTest {
 		}
 	
 	/*
-	 * Testing class, prints on console the graph.
+	 * Testing class, prints on console the workload.
 	 */
 	public void printGraph()
 	{
@@ -777,6 +820,9 @@ public class WorkloadTest {
 		
 	}
 	
+	/*
+	 * Testing class, prints on console the graph.
+	 */
 	public void printJGraph()
 	{
 		Object[] cells = graph.getChildCells(graph.getDefaultParent());
@@ -789,7 +835,9 @@ public class WorkloadTest {
 		
 	}
 	
-
+	/*
+	 * Create a XML file from the JGraph information and stores it in the given path.
+	 */
 	public void createJGraphXML(String path)
 	{
 		try {
@@ -845,7 +893,9 @@ public class WorkloadTest {
 	
 	
 	}
-	
+	/*
+	 * Read the XML file given and parses it to generate a JGraph.
+	 */
 	public mxGraph readGraphXML(String path)
 	{
 		  SAXBuilder builder = new SAXBuilder();

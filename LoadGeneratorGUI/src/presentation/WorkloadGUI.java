@@ -62,7 +62,7 @@ public class WorkloadGUI extends JFrame {
 	private JButton btnAddNode;
 	private JPanel panelTransition;
 	private JPanel panelNode;
-	private JComboBox cbSerializer;
+	private JComboBox<String> cbSerializer;
 	private WorkloadTest wl;
 	private mxGraph graph;
 	private mxGraphComponent graphComponent;
@@ -337,7 +337,7 @@ public class WorkloadGUI extends JFrame {
 	    panelWorkLoad.add(lblSerializer, gbc_lblSerializer);
 		
 		
-	    cbSerializer = new JComboBox(serializers);
+	    cbSerializer = new JComboBox<String>(serializers);
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -452,13 +452,7 @@ public class WorkloadGUI extends JFrame {
 		btnEditNode = new JButton("Edit");
 		btnEditNode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			Object cell =	graphComponent.getGraph().getSelectionCell();
-				if(chckbxIsInitial.isSelected())
-					wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()), cell);
-				else
-					wl.updateNode(new Node(txtNID.getText()),cell);
-				
-				graphComponent.refresh();
+				editNode();
 			}
 		});
 		GridBagConstraints gbc_btnEditNode = new GridBagConstraints();
@@ -557,9 +551,7 @@ public class WorkloadGUI extends JFrame {
 		btnEditTransition = new JButton("Edit");
 		btnEditTransition.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mxCell edge = (mxCell) graphComponent.getGraph().getSelectionCell();
-
-				wl.updateEdge(txtFrom.getText(),txtTo.getText(),txtTProb.getText(), edge);
+				editTransition();				
 			}
 		});
 		GridBagConstraints gbc_btnEditTransition = new GridBagConstraints();
@@ -577,19 +569,28 @@ public class WorkloadGUI extends JFrame {
 	
 	public void newWorkloadFile(ActionEvent e)
 	{
-		wl = new WorkloadTest("","","");
-		txtWLId.setText(null);
-		txtUsersNumber.setText(null);
-		cbSerializer.setSelectedIndex(0);
-		txtFrom.setText(null);
-		txtNID.setText(null);
-		txtNProb.setText(null);
-		txtTo.setText(null);
-		txtTProb.setText(null);
-		chckbxIsInitial.setSelected(false);
-		graph = new mxGraph();
-		graphComponent.setGraph(graph);
-		graphComponent.refresh();
+		boolean saved = true;
+		int reply = JOptionPane.showConfirmDialog(null, "Would you like to save first?", "Create new workload.", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+        	saved =	saveWorkload();
+        }
+        if(reply != JOptionPane.CLOSED_OPTION && saved)
+        {
+    		wl = new WorkloadTest("","","");
+    		txtWLId.setText(null);
+    		txtUsersNumber.setText(null);
+    		cbSerializer.setSelectedIndex(0);
+    		txtFrom.setText(null);
+    		txtNID.setText(null);
+    		txtNProb.setText(null);
+    		txtTo.setText(null);
+    		txtTProb.setText(null);
+    		chckbxIsInitial.setSelected(false);
+    		graph = new mxGraph();
+    		graphComponent.setGraph(graph);
+    		graphComponent.refresh();
+       
+        }
 	}
 
 	
@@ -633,7 +634,29 @@ public class WorkloadGUI extends JFrame {
 		}	
 	}
 	
-	
+	public void editNode()
+	{
+		boolean updated;
+		
+		Object cell =	graphComponent.getGraph().getSelectionCell();
+		if(cell == null)
+		{
+			JOptionPane.showMessageDialog(this,"Please, select a node","ERROR",JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+			if(chckbxIsInitial.isSelected())
+				updated = wl.updateNode(new Node(txtNID.getText(),txtNProb.getText()), cell);
+			else
+				updated = wl.updateNode(new Node(txtNID.getText()),cell);
+				
+			if(!updated)
+				JOptionPane.showMessageDialog(this,"This ID already exists","ERROR",JOptionPane.ERROR_MESSAGE);
+			graphComponent.refresh();
+		}
+
+			
+	}
 	public void addTransition()
 	{
 		int added;
@@ -660,7 +683,15 @@ public class WorkloadGUI extends JFrame {
 		}
 	}
 	
-	public void saveWorkload()
+	public void editTransition()
+	{
+		mxCell edge = (mxCell) graphComponent.getGraph().getSelectionCell();
+		if(edge == null)
+			JOptionPane.showMessageDialog(this,"Please, select a transition","ERROR",JOptionPane.ERROR_MESSAGE);
+		else
+			wl.updateEdge(txtFrom.getText(),txtTo.getText(),txtTProb.getText(), edge);
+	}
+	public boolean saveWorkload()
 	{
 		wl.setId(txtWLId.getText());
 		wl.setSerializerClass(cbSerializer.getSelectedItem().toString());
@@ -679,8 +710,10 @@ public class WorkloadGUI extends JFrame {
 		else
 		{
 			JOptionPane.showMessageDialog(this,"Some parameters are empty","ERROR",JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
 
+	return true;
 	}
 	
 	public void loadWorkload()

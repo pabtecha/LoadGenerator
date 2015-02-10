@@ -6,6 +6,9 @@ public class Node {
 	private boolean isInitial;
 	private String probability;
 	
+	/*
+	 * Constructor for non-initial nodes. Only requieres an ID
+	 */
 	public Node(String id){
 		
 		this.id = id;
@@ -13,7 +16,9 @@ public class Node {
 
 		
 	}
-	
+	/*
+	 * Constructor for initial nodes. Requieres ID and probability
+	 */
 	public Node(String id, String probability)
 	{
 		this.id = id;
