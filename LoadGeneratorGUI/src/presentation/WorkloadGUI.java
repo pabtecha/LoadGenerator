@@ -38,6 +38,7 @@ import bussines.NavigationTransition;
 import bussines.Node;
 import bussines.WorkloadTest;
 
+import com.mxgraph.layout.mxParallelEdgeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -108,7 +109,7 @@ public class WorkloadGUI extends JFrame {
 		graphComponent = new mxGraphComponent(graph);
 		graphComponent.setConnectable(false);
 		graphComponent.setDragEnabled(false);
-		
+
 		graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
 		{		
 	
@@ -670,6 +671,8 @@ public class WorkloadGUI extends JFrame {
 			{
 				graphComponent.setGraph( wl.addTransitionToGraph(new NavigationTransition(txtFrom.getText(),txtTo.getText(),txtTProb.getText())));
 				graphComponent.refresh();
+				mxParallelEdgeLayout parEd = new mxParallelEdgeLayout(graph);
+				parEd.execute(graph.getDefaultParent());
 			}
 			
 			if(added==1)

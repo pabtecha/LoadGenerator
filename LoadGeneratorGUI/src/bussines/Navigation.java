@@ -22,6 +22,9 @@ public class Navigation {
 	public List<StatisticAttribute> statAttr;
 	
 	//Constructor
+	/**
+	 * Navigation constructor. Requires the ID, the InputData and the ExecutionCode
+	 */
 	public Navigation(String id, InputData inData, ExecutionCode ec){
 
 		this.id = id;
@@ -32,24 +35,54 @@ public class Navigation {
 	
 	
 	//gets
+	/**
+	 * Returns the navigation id
+	 * @return id
+	 */
 	public String getId(){return id;}
+	/**
+	 * Returns the inputData
+	 * @return inputData
+	 */
 	public InputData getInputData(){return inputData;}
+	/**
+	 * Returns the executionCode
+	 * @return exCode
+	 */
 	public ExecutionCode getExecutionCode(){return exCode;}
+	/**
+	 * Returns the list of statistic attributes
+	 * @return statAttr
+	 */
 	public List<StatisticAttribute> getStatisticAttributes(){return statAttr;}
 	
 	//sets
+	/**
+	 * Sets the navigation ID
+	 */
 	public void setId(String id){this.id=id;}
+	/**
+	 * Sets the inputData
+	 */
 	public void setInputData(InputData inData){inputData = inData;}
+	/**
+	 * Sets the executionCode
+	 */
 	public void setExecutionCode(ExecutionCode ec){exCode = ec;}
+	/**
+	 * Sets the list of statisticAttributes
+	 */
 	public void setStatisticAttributes(List<StatisticAttribute> sa){statAttr = sa;}
-	
+	/**
+	 * Adds a statistic attribute to the list
+	 */
 	public void addStatisticAttribute(StatisticAttribute stat)
 	{
 		statAttr.add(stat);
 		System.out.println("Adding "+stat.getName()+" to navigation");
 	}	
 	
-	/*
+	/**
 	 * Create a XML file from the navigation information and stores it in the given path.
 	 */
 	public void createXML(String path)
@@ -119,10 +152,9 @@ public class Navigation {
 	  }
 	}
 	
-	/*
-	 * Read the XML file given and parses it to generate a workload.
-	 */
-	
+	/**
+	 * Read the XML file given and parses it to generate a navigation.
+	 */	
 	public void readXML(String path)
 	{
 		  SAXBuilder builder = new SAXBuilder();
