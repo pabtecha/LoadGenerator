@@ -167,7 +167,7 @@ public class WorkloadTest {
 		graph.setCellsDeletable(true);
 		graph.setCellsDisconnectable(false);
 		graph.setCellsResizable(false);
-		graph.setLabelsClipped(true);
+	//	graph.setLabelsClipped(true);
 		graph.setCellsEditable(false);
 		graph.setCellsEditable(false);
 
@@ -431,6 +431,21 @@ public class WorkloadTest {
 	}
 	
 	/**
+	 * Searches for all the navigations coming from a node to an other node
+	 * @return navigationlist
+	 */
+	public List<NavigationTransition> getNavigation(String from, String to)
+	{
+		List<NavigationTransition> navigationlist = new ArrayList<NavigationTransition>();
+		
+		for (NavigationTransition n : navigationTransition)
+		{
+			if ( n.getFrom().equals(from) && n.getTo().equals(to))
+				navigationlist.add(n);
+		}
+		return navigationlist;		
+	}
+	/**
 	 * Updates the probability to a specific transition and updates the edge label.
 	 */
 	public void updateEdge(String from, String to, String prob, mxCell cell)
@@ -561,7 +576,7 @@ public class WorkloadTest {
 			if(moreThanOne > 1)
 			{
 				ed = graph.insertEdge(vertices.get(nav.getFrom()),nav.toString(), 
-						nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()),mxConstants.STYLE_STROKECOLOR+"=red");
+						nav,vertices.get(nav.getFrom()),vertices.get(nav.getTo()),mxConstants.STYLE_STROKECOLOR+"=red;noLabel=1;"+mxConstants.STYLE_STROKEWIDTH+"=2");
 			}
 			else
 			{
@@ -962,16 +977,24 @@ public class WorkloadTest {
 				   vertices.put(n.getId(), v);
 				}
 				System.out.println("Number of edges: "+eds.size());
-				
+				Hashtable<String,Object> uniqueEdges = new Hashtable<String,Object>();
 				for(int i =0; i<eds.size();i++)
 				{
 					Element edge = (Element) eds.get(i);
 					System.out.println("getting nav: "+edge.getAttributeValue("id"));
 					NavigationTransition trans = getNavigation(edge.getAttributeValue("id"));
 					System.out.println("got nav: "+ trans.toString());
+					if(uniqueEdges.containsKey(edge.getAttributeValue("source")+"-"+edge.getAttributeValue("target")))
+					{
+						ed = graph.insertEdge(edge.getAttributeValue("parent"), edge.getAttributeValue("id"), trans, vertices.get(edge.getAttributeValue("source")),
+								vertices.get(edge.getAttributeValue("target")),mxConstants.STYLE_STROKECOLOR+"=red;noLabel=1;"+mxConstants.STYLE_STROKEWIDTH+"=2");
+					}else
+					{
+						ed = graph.insertEdge(edge.getAttributeValue("parent"), edge.getAttributeValue("id"), trans, vertices.get(edge.getAttributeValue("source")),
+								vertices.get(edge.getAttributeValue("target")));
+						uniqueEdges.put(edge.getAttributeValue("source")+"-"+edge.getAttributeValue("target"), ed);
+					}
 					
-					ed = graph.insertEdge(edge.getAttributeValue("parent"), edge.getAttributeValue("id"), trans, vertices.get(edge.getAttributeValue("source")),
-							vertices.get(edge.getAttributeValue("target")));
 					System.out.println("new label: "+trans.getProbability());
 					graph.cellLabelChanged(ed,trans.getProbability() , false);
 				//	graph.getModel().getGeometry(ed).setOffset(new mxPoint(10.0,50.0));

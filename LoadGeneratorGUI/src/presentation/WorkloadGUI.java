@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -175,7 +176,8 @@ public class WorkloadGUI extends JFrame {
 						{
 							//the split result is nav[0]=from; nav[1]=to; nav[2]=prob;
 							final String[] nav = cell.getId().split("-");
-							ActionListener actionEdit = new ActionListener() {
+							final List<NavigationTransition> navigations = wl.getNavigation(nav[0], nav[1]);
+				/*			ActionListener actionEdit = new ActionListener() {
 							      public void actionPerformed(ActionEvent e) {
 							    	 System.out.println("Editing transition");
 							    	 txtFrom.setText(nav[0]);
@@ -183,8 +185,8 @@ public class WorkloadGUI extends JFrame {
 							    	 txtTProb.setText(nav[2]);
 
 							      }
-							 };
-							 ActionListener actionDelete = new ActionListener() {
+							 };*/
+							/* ActionListener actionDelete = new ActionListener() {
 								  public void actionPerformed(ActionEvent e) {
 									 System.out.println("deleting transition");
 									 System.out.println(cell.getId());
@@ -192,13 +194,33 @@ public class WorkloadGUI extends JFrame {
 									 if(wl.getNavigation(cell.getId()) != null)
 										 wl.deleteTransition(wl.getNavigation(cell.getId()));
 								   }
-							 };
-							 JMenuItem m = new JMenuItem("Set probability");
-							 m.addActionListener(actionEdit);
-							 menu.add(m);
-							 m = new JMenuItem("Delete");
-							 m.addActionListener(actionDelete);
-							 menu.add(m);
+							 };*/
+							 for(final NavigationTransition n : navigations)
+							 {
+								 JMenu m = new JMenu(n.getProbability());
+								 JMenuItem sm = new JMenuItem("Set probability");
+								 sm.addActionListener(new ActionListener() {
+								      public void actionPerformed(ActionEvent e) {
+									    	 System.out.println("Editing transition");
+									    	 txtFrom.setText(n.getFrom());
+									    	 txtTo.setText(n.getTo());
+									    	 txtTProb.setText(n.getProbability());
+
+									      }
+									 });
+								 m.add(sm);
+								 menu.add(m);
+								 sm = new JMenuItem("Delete");
+								 sm.addActionListener(new ActionListener() {
+									  public void actionPerformed(ActionEvent e) {
+											 if(wl.getNavigation(n.toString())!=null)
+												 wl.deleteTransition(wl.getNavigation(n.toString()));
+										   }
+									 });
+								 m.add(sm);
+								 menu.add(m);
+							 }
+
 						}
 						// Display PopupMenu
 						menu.show(contentPane, e.getX(), e.getY());
